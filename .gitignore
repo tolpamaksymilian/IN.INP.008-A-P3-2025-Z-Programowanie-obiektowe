@@ -1,0 +1,33 @@
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Build results
+bin/
+obj/
+out/
+[Bb]uild/
+[Ll]og/
+[Tt]emp/
+
+# NuGet
+*.nupkg
+*.snupkg
+*.nuspec
+packages/
+
+# Rider / JetBrains
+.idea/
+*.sln.iml
+
+# System files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Backup
+*.bak
+*.tmp
