@@ -8,4 +8,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\TransportBooking.Data\TransportBooking.Data.csproj" />
+    <ProjectReference Include="..\TransportBooking.Domain\TransportBooking.Domain.csproj" />
+  </ItemGroup>
+
 </Project>

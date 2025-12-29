@@ -1,3 +1,5 @@
 <Solution>
+  <Project Path="TransportBooking.Data/TransportBooking.Data.csproj" />
+  <Project Path="TransportBooking.Domain/TransportBooking.Domain.csproj" />
   <Project Path="TransportBooking/TransportBooking.csproj" />
 </Solution>
