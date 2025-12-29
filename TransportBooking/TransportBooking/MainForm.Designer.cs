@@ -29,31 +29,58 @@
         private void InitializeComponent()
         {
             btnTestDb = new Button();
+            dgvClients = new DataGridView();
+            btnLoadClients = new Button();
+            ((System.ComponentModel.ISupportInitialize)dgvClients).BeginInit();
             SuspendLayout();
             // 
             // btnTestDb
             // 
-            btnTestDb.Location = new Point(152, 95);
+            btnTestDb.Location = new Point(525, 409);
             btnTestDb.Name = "btnTestDb";
-            btnTestDb.Size = new Size(94, 29);
+            btnTestDb.Size = new Size(263, 29);
             btnTestDb.TabIndex = 0;
-            btnTestDb.Text = "TEST";
+            btnTestDb.Text = "TEST POŁĄCZENIA Z BAZĄ DANYCH";
             btnTestDb.UseVisualStyleBackColor = true;
-            btnTestDb.Click += this.btnTestDb_Click;
+            btnTestDb.Click += btnTestDb_Click;
+            // 
+            // dgvClients
+            // 
+            dgvClients.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dgvClients.Location = new Point(12, 12);
+            dgvClients.Name = "dgvClients";
+            dgvClients.RowHeadersWidth = 51;
+            dgvClients.Size = new Size(776, 231);
+            dgvClients.TabIndex = 1;
+            // 
+            // btnLoadClients
+            // 
+            btnLoadClients.Location = new Point(12, 249);
+            btnLoadClients.Name = "btnLoadClients";
+            btnLoadClients.Size = new Size(207, 29);
+            btnLoadClients.TabIndex = 2;
+            btnLoadClients.Text = "Wczytaj klientów";
+            btnLoadClients.UseVisualStyleBackColor = true;
+            btnLoadClients.Click += this.btnLoadClients_Click;
             // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
+            Controls.Add(btnLoadClients);
+            Controls.Add(dgvClients);
             Controls.Add(btnTestDb);
             Name = "MainForm";
             Text = "Form1";
+            ((System.ComponentModel.ISupportInitialize)dgvClients).EndInit();
             ResumeLayout(false);
         }
 
         #endregion
 
         private Button btnTestDb;
+        private DataGridView dgvClients;
+        private Button btnLoadClients;
     }
 }
