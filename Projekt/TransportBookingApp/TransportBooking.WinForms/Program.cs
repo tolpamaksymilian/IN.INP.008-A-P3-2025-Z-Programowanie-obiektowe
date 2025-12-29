@@ -1,4 +1,5 @@
 namespace TransportBooking.WinForms
+
 {
     internal static class Program
     {
