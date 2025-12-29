@@ -16,6 +16,15 @@ public class AppDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<Client>().ToTable("clients");
+        modelBuilder.Entity<Vehicle>().ToTable("vehicles");
+        modelBuilder.Entity<Route>().ToTable("routes");
+        modelBuilder.Entity<Reservation>().ToTable("reservations");
+        modelBuilder.Entity<Package>().ToTable("packages");
+        modelBuilder.Entity<Payment>().ToTable("payments");
+
+
+
         modelBuilder.Entity<Client>(e =>
         {
             e.HasKey(x => x.ClientId);
