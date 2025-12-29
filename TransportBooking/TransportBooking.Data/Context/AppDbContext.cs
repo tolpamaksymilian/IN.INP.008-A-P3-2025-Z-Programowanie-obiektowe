@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TransportBooking.Domain.Entities;
 
-
 namespace TransportBooking.Data.Context;
 
 public class AppDbContext : DbContext
