@@ -19,7 +19,7 @@ public class AppDbContext : DbContext
         if (!optionsBuilder.IsConfigured)
         {
             optionsBuilder.UseNpgsql(
-                "Host=localhost;Port=5432;Database=transportbooking;Username=postgres;Password=postgres");
+                "Host=localhost;Port=5432;Database=transport_db;Username=postgres;Password=postgres");
         }
     }
 
