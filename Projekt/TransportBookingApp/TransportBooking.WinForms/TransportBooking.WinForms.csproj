@@ -9,6 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\TransportBooking.Domain\TransportBooking.Domain.csproj" />
     <ProjectReference Include="..\TransportBooking.Services\TransportBooking.Services.csproj" />
   </ItemGroup>
 
