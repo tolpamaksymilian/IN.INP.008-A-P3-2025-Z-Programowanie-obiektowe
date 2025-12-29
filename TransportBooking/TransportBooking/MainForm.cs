@@ -21,13 +21,23 @@ public partial class MainForm : Form
             using var db = new AppDbContext();
             var ok = db.Database.CanConnect();
 
-            MessageBox.Show(ok ? "Połączenie z bazą OK ✅" : "Brak połączenia z bazą ❌");
+            if (db_connect_info != null)
+            {
+                db_connect_info.Text = ok
+                    ? "Wynik połączenia: Połączono"
+                    : "Wynik połączenia: Brak połączenia";
+            }
+            else
+            {
+                MessageBox.Show("Label db_connect_info jest null");
+            }
         }
         catch (Exception ex)
         {
-            MessageBox.Show("Błąd: " + ex.Message);
+            MessageBox.Show(ex.Message);
         }
     }
+
 
     private void btnLoadClients_Click(object sender, EventArgs e)
     {
