@@ -1,12 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace TransportBooking.Domain.Entities;
 
-namespace TransportBooking.Domain.Entities
+public class Route
 {
-    internal class Route
-    {
-    }
+    public int RouteId { get; set; }            
+
+    public int VehicleId { get; set; }          
+    public Vehicle? Vehicle { get; set; }
+
+    public string StartCity { get; set; } = "";
+    public string EndCity { get; set; } = "";
+    public DateTime DepartureTime { get; set; }
+    public decimal PricePerson { get; set; }
+
+    public List<Reservation> Reservations { get; set; } = new();
 }

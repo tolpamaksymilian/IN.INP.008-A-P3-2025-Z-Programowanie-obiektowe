@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace TransportBooking.Domain.Entities;
 
-namespace TransportBooking.Domain.Entities
+public class Vehicle
 {
-    internal class Vehicle
-    {
-    }
+    public int VehicleId { get; set; }         
+    public string PlateNumber { get; set; } = ""; 
+    public string Model { get; set; } = "";
+    public int Seats { get; set; }
+    public bool Active { get; set; } = true;
+
+    public List<Route> Routes { get; set; } = new();
 }

@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace TransportBooking.Domain.Entities;
 
-namespace TransportBooking.Domain.Entities
+public class Package
 {
-    internal class Package
-    {
-    }
+    public int PackageId { get; set; }          
+
+    public int ReservationId { get; set; }     
+    public Reservation? Reservation { get; set; }
+
+    public decimal WeightKg { get; set; }
+    public string Description { get; set; } = "";
 }
