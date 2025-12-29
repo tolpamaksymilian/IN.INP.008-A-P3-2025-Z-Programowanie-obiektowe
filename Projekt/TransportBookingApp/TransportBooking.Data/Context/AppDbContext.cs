@@ -27,17 +27,23 @@ public class AppDbContext : DbContext
 
         modelBuilder.Entity<Client>(e =>
         {
-            e.HasKey(x => x.ClientId);
-            e.HasIndex(x => x.Email).IsUnique();
+            e.ToTable("clients");
 
-            e.Property(x => x.FirstName).HasMaxLength(100).IsRequired();
-            e.Property(x => x.LastName).HasMaxLength(100).IsRequired();
-            e.Property(x => x.Email).HasMaxLength(150).IsRequired();
-            e.Property(x => x.Phone).HasMaxLength(30);
-            e.Property(x => x.Address).HasMaxLength(200);
-            e.Property(x => x.PostalCode).HasMaxLength(20);
-            e.Property(x => x.City).HasMaxLength(80);
+            e.HasKey(x => x.ClientId);
+
+            e.Property(x => x.ClientId).HasColumnName("client_id");
+            e.Property(x => x.FirstName).HasColumnName("first_name").HasMaxLength(100).IsRequired();
+            e.Property(x => x.LastName).HasColumnName("last_name").HasMaxLength(100).IsRequired();
+            e.Property(x => x.Email).HasColumnName("email").HasMaxLength(150).IsRequired();
+            e.Property(x => x.Phone).HasColumnName("phone").HasMaxLength(30);
+            e.Property(x => x.Address).HasColumnName("address").HasMaxLength(200);
+            e.Property(x => x.PostalCode).HasColumnName("postal_code").HasMaxLength(20);
+            e.Property(x => x.City).HasColumnName("city").HasMaxLength(80);
+            e.Property(x => x.CreatedAt).HasColumnName("created_at");
+
+            e.HasIndex(x => x.Email).IsUnique();
         });
+
 
         modelBuilder.Entity<Vehicle>(e =>
         {

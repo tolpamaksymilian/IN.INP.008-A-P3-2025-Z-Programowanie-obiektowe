@@ -41,12 +41,12 @@
             dgvClients.Location = new Point(12, 12);
             dgvClients.Name = "dgvClients";
             dgvClients.RowHeadersWidth = 51;
-            dgvClients.Size = new Size(300, 188);
+            dgvClients.Size = new Size(776, 318);
             dgvClients.TabIndex = 0;
             // 
             // btnLoad
             // 
-            btnLoad.Location = new Point(452, 30);
+            btnLoad.Location = new Point(12, 386);
             btnLoad.Name = "btnLoad";
             btnLoad.Size = new Size(206, 29);
             btnLoad.TabIndex = 1;
@@ -56,7 +56,7 @@
             // 
             // btnAdd
             // 
-            btnAdd.Location = new Point(452, 75);
+            btnAdd.Location = new Point(12, 351);
             btnAdd.Name = "btnAdd";
             btnAdd.Size = new Size(206, 29);
             btnAdd.TabIndex = 2;
@@ -65,7 +65,7 @@
             // 
             // btnDelete
             // 
-            btnDelete.Location = new Point(452, 128);
+            btnDelete.Location = new Point(224, 386);
             btnDelete.Name = "btnDelete";
             btnDelete.Size = new Size(206, 29);
             btnDelete.TabIndex = 3;
