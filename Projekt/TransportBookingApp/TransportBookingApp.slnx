@@ -1,6 +1,0 @@
-<Solution>
-  <Project Path="TransportBooking.Data/TransportBooking.Data.csproj" />
-  <Project Path="TransportBooking.Domain/TransportBooking.Domain.csproj" />
-  <Project Path="TransportBooking.Services/TransportBooking.Services.csproj" />
-  <Project Path="TransportBooking.WinForms/TransportBooking.WinForms.csproj" />
-</Solution>
