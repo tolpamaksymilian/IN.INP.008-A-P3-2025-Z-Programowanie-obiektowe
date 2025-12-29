@@ -1,6 +1,6 @@
 ﻿namespace TransportBooking.WinForms
 {
-    partial class Form1
+    partial class Menu
     {
         /// <summary>
         ///  Required designer variable.
@@ -32,6 +32,7 @@
             btnLoad = new Button();
             btnAdd = new Button();
             btnDelete = new Button();
+            btnClients = new Button();
             ((System.ComponentModel.ISupportInitialize)dgvClients).BeginInit();
             SuspendLayout();
             // 
@@ -72,17 +73,28 @@
             btnDelete.Text = "Usuń zaznaczonego";
             btnDelete.UseVisualStyleBackColor = true;
             // 
-            // Form1
+            // btnClients
+            // 
+            btnClients.Location = new Point(639, 378);
+            btnClients.Name = "btnClients";
+            btnClients.Size = new Size(94, 29);
+            btnClients.TabIndex = 4;
+            btnClients.Text = "btnClients";
+            btnClients.UseVisualStyleBackColor = true;
+            btnClients.Click += btnClients_Click;
+            // 
+            // Menu
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
+            Controls.Add(btnClients);
             Controls.Add(btnDelete);
             Controls.Add(btnAdd);
             Controls.Add(btnLoad);
             Controls.Add(dgvClients);
-            Name = "Form1";
-            Text = "Form1";
+            Name = "Menu";
+            Text = "Menu";
             ((System.ComponentModel.ISupportInitialize)dgvClients).EndInit();
             ResumeLayout(false);
         }
@@ -93,5 +105,6 @@
         private Button btnLoad;
         private Button btnAdd;
         private Button btnDelete;
+        private Button btnClients;
     }
 }

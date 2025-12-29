@@ -6,11 +6,11 @@ using TransportBooking.Services.Services;
 
 namespace TransportBooking.WinForms;
 
-public partial class Form1 : Form
+public partial class Menu : Form
 {
     private readonly IClientService _clients = new ClientService();
 
-    public Form1()
+    public Menu()
     {
         InitializeComponent();
         dgvClients.AutoGenerateColumns = true;
@@ -69,4 +69,11 @@ public partial class Form1 : Form
             MessageBox.Show(ex.Message, "B³¹d", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
+
+    private void btnClients_Click(object sender, EventArgs e)
+    {
+        using var f = new FormClients();
+        f.ShowDialog();
+    }
+
 }
