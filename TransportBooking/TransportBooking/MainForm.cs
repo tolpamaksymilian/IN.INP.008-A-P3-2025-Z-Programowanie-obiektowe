@@ -442,18 +442,18 @@ public partial class MainForm : Form
     // Obsługuje przycisk wczytujący wszystkie pojazdy z bazy danych
     private void btnLoadVehicles_Click_1(object sender, EventArgs e)
     {
-            MessageBox.Show("Klik działa");
+        MessageBox.Show("Klik działa");
 
 
-            try
-            {
-                LoadVehicles();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Błąd: " + ex.Message);
-            }
+        try
+        {
+            LoadVehicles();
         }
+        catch (Exception ex)
+        {
+            MessageBox.Show("Błąd: " + ex.Message);
+        }
+    }
 
 
 
@@ -667,5 +667,304 @@ public partial class MainForm : Form
         dgvVehicles.ClearSelection();
     }
 
-    
+
+
+
+
+
+
+
+
+    /* =========================================================
+   SEKCJA: TRASY / KURSY
+   ---------------------------------------------------------
+   Sekcja odpowiedzialna za zarządzanie trasami (kursami)
+   realizowanymi przez firmę transportową. Umożliwia:
+   - wyświetlanie listy tras zapisanych w bazie danych,
+   - wyszukiwanie tras po miastach początkowych i docelowych,
+   - dodawanie nowych tras z przypisaniem pojazdu,
+   - edycję danych istniejących tras,
+   - bezpieczne usuwanie tras (z blokadą, jeśli istnieją
+     powiązane rezerwacje).
+   
+   Trasa zawiera informacje o pojeździe, miastach,
+   dacie i godzinie wyjazdu oraz cenie za osobę.
+   Dane przechowywane są w bazie PostgreSQL, a operacje
+   CRUD realizowane są z wykorzystaniem Entity Framework Core.
+   ========================================================= */
+
+
+
+    // Przechowuje ID aktualnie zaznaczonej trasy w tabeli
+    private long? _selectedRouteId = null;
+
+    // Wczytuje listę pojazdów do ComboBox (wybór pojazdu dla trasy)
+    private void LoadVehiclesToRouteCombo()
+    {
+        using var db = new AppDbContext();
+
+        var vehicles = db.Vehicles
+            .AsNoTracking()
+            .OrderByDescending(v => v.VehicleId)
+            .Select(v => new
+            {
+                v.VehicleId,
+                Display = $"{v.PlateNumber} | {v.Model} | miejsca: {v.Seats}"
+            })
+            .ToList();
+
+        cmbRouteVehicle.DataSource = vehicles;
+        cmbRouteVehicle.DisplayMember = "Display";
+        cmbRouteVehicle.ValueMember = "VehicleId";
+    }
+
+
+    // Ładuje listę tras z bazy danych (opcjonalnie z filtrem wyszukiwania)
+    private void LoadRoutes(string? filter = null)
+    {
+        using var db = new AppDbContext();
+
+        var q = db.Routes.AsNoTracking().AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(filter))
+        {
+            filter = filter.Trim().ToLower();
+
+            q = q.Where(r =>
+                r.StartCity.ToLower().Contains(filter) ||
+                r.EndCity.ToLower().Contains(filter)
+            );
+        }
+
+        dgvRoutes.DataSource = q
+            .OrderByDescending(r => r.RouteId)
+            .ToList();
+    }
+
+    // Obsługuje przycisk wczytujący wszystkie trasy oraz pojazdy do ComboBox
+    private void btnLoadRoutes_Click(object sender, EventArgs e)
+    {
+        try
+        {
+            LoadVehiclesToRouteCombo();
+            LoadRoutes();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show("Błąd: " + ex.Message);
+        }
+    }
+
+    // Wyszukuje trasy na podstawie miasta początkowego lub docelowego
+    private void btnSearchRoute_Click(object sender, EventArgs e)
+    {
+        try
+        {
+            LoadRoutes(txtSearchRoute.Text);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show("Błąd: " + ex.Message);
+        }
+    }
+
+    // Obsługuje kliknięcie w tabeli tras i uzupełnia formularz danymi trasy
+    private void dgvRoutes_CellClick(object sender, DataGridViewCellEventArgs e)
+    {
+        try
+        {
+            if (dgvRoutes.CurrentRow == null) return;
+
+            _selectedRouteId = Convert.ToInt64(dgvRoutes.CurrentRow.Cells["RouteId"].Value);
+
+            txtStartCity.Text = dgvRoutes.CurrentRow.Cells["StartCity"].Value?.ToString() ?? "";
+            txtEndCity.Text = dgvRoutes.CurrentRow.Cells["EndCity"].Value?.ToString() ?? "";
+            txtPricePerson.Text = dgvRoutes.CurrentRow.Cells["PricePerson"].Value?.ToString() ?? "";
+
+            if (dgvRoutes.CurrentRow.Cells["DepartureTime"].Value is DateTime dt)
+                dtpDepartureTime.Value = dt;
+
+            // ustaw pojazd w ComboBox
+            var vehicleIdObj = dgvRoutes.CurrentRow.Cells["VehicleId"].Value;
+            if (vehicleIdObj != null)
+                cmbRouteVehicle.SelectedValue = Convert.ToInt64(vehicleIdObj);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show("Błąd: " + ex.Message);
+        }
+    }
+
+    // Waliduje dane trasy (pojazd, miasta, data wyjazdu, cena)
+    private bool ValidateRouteInputs(out long vehicleId, out string start, out string end, out DateTime departure, out decimal pricePerson)
+    {
+        // ustaw wartości domyślne dla OUT (żeby nie było CS0177)
+        vehicleId = 0;
+        start = txtStartCity.Text.Trim();
+        end = txtEndCity.Text.Trim();
+        departure = dtpDepartureTime.Value;
+        pricePerson = 0;
+
+        // pojazd
+        if (cmbRouteVehicle.SelectedValue == null || !long.TryParse(cmbRouteVehicle.SelectedValue.ToString(), out vehicleId))
+        {
+            MessageBox.Show("Wybierz pojazd dla trasy.");
+            return false;
+        }
+
+        // miasta
+        if (start.Length < 2)
+        {
+            MessageBox.Show("Miasto startowe jest za krótkie.");
+            return false;
+        }
+
+        if (end.Length < 2)
+        {
+            MessageBox.Show("Miasto docelowe jest za krótkie.");
+            return false;
+        }
+
+        // cena
+        var raw = txtPricePerson.Text.Trim().Replace(',', '.');
+        if (!decimal.TryParse(raw, System.Globalization.NumberStyles.Any,
+                System.Globalization.CultureInfo.InvariantCulture, out pricePerson) || pricePerson < 0)
+        {
+            MessageBox.Show("Cena za osobę musi być liczbą >= 0 (np. 120.50).");
+            return false;
+        }
+
+        return true;
+    }
+
+    // Dodaje nową trasę do bazy danych po poprawnej walidacji danych
+    private void btnAddRoute_Click(object sender, EventArgs e)
+    {
+        try
+        {
+            if (!ValidateRouteInputs(out var vehicleId, out var start, out var end, out var departure, out var price))
+                return;
+
+            using var db = new AppDbContext();
+
+            var route = new Route
+            {
+                VehicleId = vehicleId,
+                StartCity = start,
+                EndCity = end,
+                DepartureTime = DateTime.SpecifyKind(departure, DateTimeKind.Local).ToUniversalTime(),
+                PricePerson = price
+            };
+
+
+            db.Routes.Add(route);
+            db.SaveChanges();
+
+            MessageBox.Show("Dodano trasę ✅");
+            btnClearRouteForm_Click(sender, e);
+            LoadRoutes(txtSearchRoute.Text);
+        }
+        catch (Exception ex)
+        {
+            var details = ex.InnerException?.Message ?? ex.Message;
+            MessageBox.Show("Błąd: " + details);
+        }
+
+    }
+
+    // Aktualizuje dane zaznaczonej trasy w bazie danych
+    private void btnUpdateRoute_Click(object sender, EventArgs e)
+    {
+        try
+        {
+            if (_selectedRouteId is null)
+            {
+                MessageBox.Show("Zaznacz trasę w tabeli.");
+                return;
+            }
+
+            if (!ValidateRouteInputs(out var vehicleId, out var start, out var end, out var departure, out var price))
+                return;
+
+            using var db = new AppDbContext();
+
+            var route = db.Routes.FirstOrDefault(r => r.RouteId == _selectedRouteId.Value);
+            if (route == null)
+            {
+                MessageBox.Show("Trasa nie istnieje.");
+                LoadRoutes();
+                return;
+            }
+
+            route.VehicleId = vehicleId;
+            route.StartCity = start;
+            route.EndCity = end;
+            route.DepartureTime = DateTime.SpecifyKind(departure, DateTimeKind.Local).ToUniversalTime();
+            route.PricePerson = price;
+
+            db.SaveChanges();
+
+            MessageBox.Show("Zapisano zmiany ✅");
+            LoadRoutes(txtSearchRoute.Text);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show("Błąd: " + ex.Message);
+        }
+    }
+
+    // Usuwa zaznaczoną trasę z bazy danych (jeśli nie istnieją rezerwacje)
+    private void btnDeleteRoute_Click(object sender, EventArgs e)
+    {
+        try
+        {
+            if (_selectedRouteId is null)
+            {
+                MessageBox.Show("Zaznacz trasę w tabeli.");
+                return;
+            }
+
+            using var db = new AppDbContext();
+
+            bool hasReservations = db.Reservations.Any(r => r.RouteId == _selectedRouteId.Value);
+            if (hasReservations)
+            {
+                MessageBox.Show("Nie można usunąć trasy — istnieją rezerwacje na tę trasę.");
+                return;
+            }
+
+            var confirm = MessageBox.Show(
+                "Czy na pewno usunąć trasę?",
+                "Potwierdzenie",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Warning);
+
+            if (confirm != DialogResult.Yes) return;
+
+            var route = db.Routes.First(r => r.RouteId == _selectedRouteId.Value);
+            db.Routes.Remove(route);
+            db.SaveChanges();
+
+            MessageBox.Show("Usunięto trasę ✅");
+            btnClearRouteForm_Click(sender, e);
+            LoadRoutes();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show("Błąd: " + ex.Message);
+        }
+    }
+
+    // Czyści formularz trasy oraz resetuje zaznaczenie w tabeli
+    private void btnClearRouteForm_Click(object sender, EventArgs e)
+    {
+        _selectedRouteId = null;
+
+        txtStartCity.Clear();
+        txtEndCity.Clear();
+        txtPricePerson.Clear();
+        dtpDepartureTime.Value = DateTime.Now;
+
+        dgvRoutes.ClearSelection();
+    }
 }

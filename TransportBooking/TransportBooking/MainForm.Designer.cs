@@ -38,6 +38,24 @@
             tabPage5 = new TabPage();
             tabPage4 = new TabPage();
             tabPage3 = new TabPage();
+            label19 = new Label();
+            label18 = new Label();
+            label17 = new Label();
+            label16 = new Label();
+            label15 = new Label();
+            btnClearRouteForm = new Button();
+            btnDeleteRoute = new Button();
+            btnLoadRoutes = new Button();
+            btnAddRoute = new Button();
+            btnUpdateRoute = new Button();
+            btnSearchRoute = new Button();
+            txtSearchRoute = new TextBox();
+            txtPricePerson = new TextBox();
+            dtpDepartureTime = new DateTimePicker();
+            txtEndCity = new TextBox();
+            txtStartCity = new TextBox();
+            cmbRouteVehicle = new ComboBox();
+            dgvRoutes = new DataGridView();
             tabVehicles = new TabPage();
             label14 = new Label();
             label13 = new Label();
@@ -79,6 +97,8 @@
             label5 = new Label();
             tabControl1 = new TabControl();
             tabPage9.SuspendLayout();
+            tabPage3.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)dgvRoutes).BeginInit();
             tabVehicles.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dgvVehicles).BeginInit();
             tabPage1.SuspendLayout();
@@ -179,13 +199,189 @@
             // 
             // tabPage3
             // 
+            tabPage3.Controls.Add(label19);
+            tabPage3.Controls.Add(label18);
+            tabPage3.Controls.Add(label17);
+            tabPage3.Controls.Add(label16);
+            tabPage3.Controls.Add(label15);
+            tabPage3.Controls.Add(btnClearRouteForm);
+            tabPage3.Controls.Add(btnDeleteRoute);
+            tabPage3.Controls.Add(btnLoadRoutes);
+            tabPage3.Controls.Add(btnAddRoute);
+            tabPage3.Controls.Add(btnUpdateRoute);
+            tabPage3.Controls.Add(btnSearchRoute);
+            tabPage3.Controls.Add(txtSearchRoute);
+            tabPage3.Controls.Add(txtPricePerson);
+            tabPage3.Controls.Add(dtpDepartureTime);
+            tabPage3.Controls.Add(txtEndCity);
+            tabPage3.Controls.Add(txtStartCity);
+            tabPage3.Controls.Add(cmbRouteVehicle);
+            tabPage3.Controls.Add(dgvRoutes);
             tabPage3.Location = new Point(4, 29);
             tabPage3.Name = "tabPage3";
             tabPage3.Padding = new Padding(3);
-            tabPage3.Size = new Size(1106, 510);
+            tabPage3.Size = new Size(1124, 510);
             tabPage3.TabIndex = 2;
             tabPage3.Text = "Trasy/Kursy";
             tabPage3.UseVisualStyleBackColor = true;
+            // 
+            // label19
+            // 
+            label19.AutoSize = true;
+            label19.Location = new Point(29, 295);
+            label19.Name = "label19";
+            label19.Size = new Size(147, 20);
+            label19.TabIndex = 17;
+            label19.Text = "Cena za przejazd (zł)";
+            // 
+            // label18
+            // 
+            label18.AutoSize = true;
+            label18.Location = new Point(29, 224);
+            label18.Name = "label18";
+            label18.Size = new Size(250, 20);
+            label18.TabIndex = 16;
+            label18.Text = "Wybierz datę planowanego odjazdu";
+            // 
+            // label17
+            // 
+            label17.AutoSize = true;
+            label17.Location = new Point(29, 157);
+            label17.Name = "label17";
+            label17.Size = new Size(186, 20);
+            label17.TabIndex = 15;
+            label17.Text = "Wybierz miejsce docelowe";
+            // 
+            // label16
+            // 
+            label16.AutoSize = true;
+            label16.Location = new Point(29, 83);
+            label16.Name = "label16";
+            label16.Size = new Size(178, 20);
+            label16.TabIndex = 14;
+            label16.Text = "Wybierz miejsce startowe";
+            // 
+            // label15
+            // 
+            label15.AutoSize = true;
+            label15.Location = new Point(29, 10);
+            label15.Name = "label15";
+            label15.Size = new Size(113, 20);
+            label15.TabIndex = 13;
+            label15.Text = "Wybierz pojazd";
+            // 
+            // btnClearRouteForm
+            // 
+            btnClearRouteForm.Location = new Point(29, 431);
+            btnClearRouteForm.Name = "btnClearRouteForm";
+            btnClearRouteForm.Size = new Size(289, 29);
+            btnClearRouteForm.TabIndex = 12;
+            btnClearRouteForm.Text = "Wyczyść pola";
+            btnClearRouteForm.UseVisualStyleBackColor = true;
+            btnClearRouteForm.Click += btnClearRouteForm_Click;
+            // 
+            // btnDeleteRoute
+            // 
+            btnDeleteRoute.Location = new Point(29, 396);
+            btnDeleteRoute.Name = "btnDeleteRoute";
+            btnDeleteRoute.Size = new Size(289, 29);
+            btnDeleteRoute.TabIndex = 11;
+            btnDeleteRoute.Text = "Usuń zaznaczoną trasę";
+            btnDeleteRoute.UseVisualStyleBackColor = true;
+            btnDeleteRoute.Click += btnDeleteRoute_Click;
+            // 
+            // btnLoadRoutes
+            // 
+            btnLoadRoutes.Location = new Point(355, 109);
+            btnLoadRoutes.Name = "btnLoadRoutes";
+            btnLoadRoutes.Size = new Size(201, 68);
+            btnLoadRoutes.TabIndex = 10;
+            btnLoadRoutes.Text = "Wczytaj wszystkie trasy";
+            btnLoadRoutes.UseVisualStyleBackColor = true;
+            btnLoadRoutes.Click += btnLoadRoutes_Click;
+            // 
+            // btnAddRoute
+            // 
+            btnAddRoute.Location = new Point(29, 361);
+            btnAddRoute.Name = "btnAddRoute";
+            btnAddRoute.Size = new Size(137, 29);
+            btnAddRoute.TabIndex = 9;
+            btnAddRoute.Text = "Dodaj trasę";
+            btnAddRoute.UseVisualStyleBackColor = true;
+            btnAddRoute.Click += btnAddRoute_Click;
+            // 
+            // btnUpdateRoute
+            // 
+            btnUpdateRoute.Location = new Point(172, 361);
+            btnUpdateRoute.Name = "btnUpdateRoute";
+            btnUpdateRoute.Size = new Size(146, 29);
+            btnUpdateRoute.TabIndex = 8;
+            btnUpdateRoute.Text = "Zapisz zmiany";
+            btnUpdateRoute.UseVisualStyleBackColor = true;
+            btnUpdateRoute.Click += btnUpdateRoute_Click;
+            // 
+            // btnSearchRoute
+            // 
+            btnSearchRoute.Location = new Point(355, 43);
+            btnSearchRoute.Name = "btnSearchRoute";
+            btnSearchRoute.Size = new Size(201, 60);
+            btnSearchRoute.TabIndex = 7;
+            btnSearchRoute.Text = "Wyszukaj kurs";
+            btnSearchRoute.UseVisualStyleBackColor = true;
+            btnSearchRoute.Click += btnSearchRoute_Click;
+            // 
+            // txtSearchRoute
+            // 
+            txtSearchRoute.Location = new Point(355, 10);
+            txtSearchRoute.Name = "txtSearchRoute";
+            txtSearchRoute.Size = new Size(201, 27);
+            txtSearchRoute.TabIndex = 6;
+            // 
+            // txtPricePerson
+            // 
+            txtPricePerson.Location = new Point(29, 318);
+            txtPricePerson.Name = "txtPricePerson";
+            txtPricePerson.Size = new Size(289, 27);
+            txtPricePerson.TabIndex = 5;
+            // 
+            // dtpDepartureTime
+            // 
+            dtpDepartureTime.Location = new Point(29, 247);
+            dtpDepartureTime.Name = "dtpDepartureTime";
+            dtpDepartureTime.Size = new Size(289, 27);
+            dtpDepartureTime.TabIndex = 4;
+            // 
+            // txtEndCity
+            // 
+            txtEndCity.Location = new Point(29, 180);
+            txtEndCity.Name = "txtEndCity";
+            txtEndCity.Size = new Size(289, 27);
+            txtEndCity.TabIndex = 3;
+            // 
+            // txtStartCity
+            // 
+            txtStartCity.Location = new Point(29, 106);
+            txtStartCity.Name = "txtStartCity";
+            txtStartCity.Size = new Size(289, 27);
+            txtStartCity.TabIndex = 2;
+            // 
+            // cmbRouteVehicle
+            // 
+            cmbRouteVehicle.FormattingEnabled = true;
+            cmbRouteVehicle.Location = new Point(29, 37);
+            cmbRouteVehicle.Name = "cmbRouteVehicle";
+            cmbRouteVehicle.Size = new Size(289, 28);
+            cmbRouteVehicle.TabIndex = 1;
+            // 
+            // dgvRoutes
+            // 
+            dgvRoutes.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dgvRoutes.Location = new Point(562, 10);
+            dgvRoutes.Name = "dgvRoutes";
+            dgvRoutes.RowHeadersWidth = 51;
+            dgvRoutes.Size = new Size(556, 465);
+            dgvRoutes.TabIndex = 0;
+            dgvRoutes.CellClick += dgvRoutes_CellClick;
             // 
             // tabVehicles
             // 
@@ -578,7 +774,7 @@
             tabControl1.Location = new Point(12, 12);
             tabControl1.Name = "tabControl1";
             tabControl1.SelectedIndex = 0;
-            tabControl1.Size = new Size(1114, 543);
+            tabControl1.Size = new Size(1132, 543);
             tabControl1.TabIndex = 3;
             // 
             // MainForm
@@ -591,6 +787,9 @@
             Text = "Panel Admina - Zarządzanie transportem";
             tabPage9.ResumeLayout(false);
             tabPage9.PerformLayout();
+            tabPage3.ResumeLayout(false);
+            tabPage3.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)dgvRoutes).EndInit();
             tabVehicles.ResumeLayout(false);
             tabVehicles.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)dgvVehicles).EndInit();
@@ -653,5 +852,23 @@
         private Label label14;
         private Label label13;
         private Label label12;
+        private Label label18;
+        private Label label17;
+        private Label label16;
+        private Label label15;
+        private Button btnClearRouteForm;
+        private Button btnDeleteRoute;
+        private Button btnLoadRoutes;
+        private Button btnAddRoute;
+        private Button btnUpdateRoute;
+        private Button btnSearchRoute;
+        private TextBox txtSearchRoute;
+        private TextBox txtPricePerson;
+        private DateTimePicker dtpDepartureTime;
+        private TextBox txtEndCity;
+        private TextBox txtStartCity;
+        private ComboBox cmbRouteVehicle;
+        private DataGridView dgvRoutes;
+        private Label label19;
     }
 }
