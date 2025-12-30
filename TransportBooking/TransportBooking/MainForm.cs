@@ -14,11 +14,6 @@ public partial class MainForm : Form
         InitializeComponent();
     }
 
-    /// <summary>
-    /// Zakładka "Test połączenia z bazą danych"
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
     //Testowanie połącznia z bazą danych
     private void btnTestDb_Click(object sender, EventArgs e)
     {
@@ -44,7 +39,26 @@ public partial class MainForm : Form
         }
     }
 
-    //Ładowanie klientów
+
+
+    /* =========================================================
+   SEKCJA: KLIENCI
+   ---------------------------------------------------------
+   Sekcja odpowiada za kompleksowe zarządzanie danymi klientów
+   w systemie rezerwacji transportu. Umożliwia:
+   - wyświetlanie listy klientów z bazy danych,
+   - wyszukiwanie klientów po podstawowych danych,
+   - dodawanie nowych klientów z pełną walidacją danych,
+   - edycję danych istniejących klientów,
+   - bezpieczne usuwanie klientów (z blokadą, jeśli istnieją
+     powiązane rezerwacje).
+   
+   Dane prezentowane są w kontrolce DataGridView, a operacje
+   CRUD realizowane są z wykorzystaniem Entity Framework Core
+   oraz bazy danych PostgreSQL.
+   ========================================================= */
+
+    // Ładuje listę klientów z bazy danych (opcjonalnie z filtrem wyszukiwania)
     private void LoadClients(string? filter = null)
     {
         using var db = new AppDbContext();
@@ -69,13 +83,10 @@ public partial class MainForm : Form
             .ToList();
     }
 
+    // Przechowuje ID aktualnie zaznaczonego klienta w tabeli
+    private long? _selectedClientId = null;
 
-    /// <summary>
-    /// Zakładka "Klienci"
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    //Przycisk łądujący klientów z bazdy danych
+    // Obsługuje przycisk wczytujący wszystkich klientów z bazy
     private void btnLoadClients_Click(object sender, EventArgs e)
     {
         try
@@ -88,75 +99,14 @@ public partial class MainForm : Form
         }
     }
 
-    //Przycisk dodający nowego klienta
+    // Dodaje nowego klienta do bazy danych po poprawnej walidacji danych
     private void btnAddClient_Click(object sender, EventArgs e)
     {
         try
         {
-            string firstName = txtFirstName.Text.Trim();
-            string lastName = txtLastName.Text.Trim();
-
-            string? email = string.IsNullOrWhiteSpace(txtEmail.Text) ? null : txtEmail.Text.Trim();
-            string? phone = string.IsNullOrWhiteSpace(txtPhone.Text) ? null : txtPhone.Text.Trim();
-
-            string? city = string.IsNullOrWhiteSpace(txtCity.Text) ? null : txtCity.Text.Trim();
-            string? address = string.IsNullOrWhiteSpace(txtAddress.Text) ? null : txtAddress.Text.Trim();
-            string? postalCode = string.IsNullOrWhiteSpace(txtPostalCode.Text) ? null : txtPostalCode.Text.Trim();
-
-            if (firstName.Length < 3)
-            {
-                MessageBox.Show("Imię musi mieć co najmniej 3 znaki.");
+            if (!ValidateClientInputs(out var firstName, out var lastName,
+                    out var email, out var phone, out var city, out var address, out var postalCode))
                 return;
-            }
-
-            if (lastName.Length < 3)
-            {
-                MessageBox.Show("Nazwisko musi mieć co najmniej 3 znaki.");
-                return;
-            }
-
-            if (email is not null)
-            {
-                int at = email.IndexOf('@');
-                int dot = email.LastIndexOf('.');
-                if (at <= 0 || dot <= at + 1 || dot == email.Length - 1)
-                {
-                    MessageBox.Show("Podaj poprawny adres e-mail.");
-                    return;
-                }
-            }
-
-            if (phone is not null)
-            {
-                string cleaned = phone.Replace(" ", "").Replace("-", "");
-                if (cleaned.StartsWith("+")) cleaned = cleaned[1..];
-
-                if (cleaned.Length != 9 || !cleaned.All(char.IsDigit))
-                {
-                    MessageBox.Show("Podaj poprawny numer telefonu (9 cyfr).");
-                    return;
-                }
-            }
-
-            if (postalCode is not null)
-            {
-                string pc = postalCode.Replace(" ", "");
-                bool ok =
-                    (pc.Length == 6 && pc[2] == '-' && pc.Take(2).All(char.IsDigit) && pc.Skip(3).All(char.IsDigit)) ||
-                    (pc.Length == 5 && pc.All(char.IsDigit));
-
-                if (!ok)
-                {
-                    MessageBox.Show("Kod pocztowy jest niepoprawny. Użyj formatu 00-000 lub 00000.");
-                    return;
-                }
-            }
-
-            if (email is not null && email.Length > 120) { MessageBox.Show("Email max 120 znaków."); return; }
-            if (phone is not null && phone.Length > 20) { MessageBox.Show("Telefon max 20 znaków."); return; }
-            if (address is not null && address.Length > 120) { MessageBox.Show("Adres max 120 znaków."); return; }
-            if (city is not null && city.Length > 60) { MessageBox.Show("Miasto max 60 znaków."); return; }
-            if (postalCode is not null && postalCode.Length > 10) { MessageBox.Show("Kod pocztowy max 10 znaków."); return; }
 
             using var db = new AppDbContext();
 
@@ -166,16 +116,6 @@ public partial class MainForm : Form
                 if (exists)
                 {
                     MessageBox.Show("Klient z takim adresem e-mail już istnieje.");
-                    return;
-                }
-            }
-
-            if (phone is not null)
-            {
-                bool exists = db.Clients.Any(c => c.Phone == phone);
-                if (exists)
-                {
-                    MessageBox.Show("Klient z takim numerem telefonu już istnieje.");
                     return;
                 }
             }
@@ -196,18 +136,8 @@ public partial class MainForm : Form
             db.SaveChanges();
 
             MessageBox.Show($"Dodano klienta ✅ ID: {client.ClientId}");
-
-            // czyść pola
-            txtFirstName.Clear();
-            txtLastName.Clear();
-            txtEmail.Clear();
-            txtPhone.Clear();
-            txtCity.Clear();
-            txtAddress.Clear();
-            txtPostalCode.Clear();
-
-            // odśwież listę
-            btnLoadClients_Click(sender, e);
+            btnClearClientForm_Click(sender, e);
+            LoadClients(txtSearchClient.Text);
         }
         catch (Exception ex)
         {
@@ -215,7 +145,7 @@ public partial class MainForm : Form
         }
     }
 
-    //Przycisk wyszukiwujący klienta w bazie danych
+    // Wyszukuje klientów na podstawie wpisanego tekstu (imię, nazwisko, email itp.)
     private void btnSearchClient_Click(object sender, EventArgs e)
     {
         try
@@ -228,7 +158,7 @@ public partial class MainForm : Form
         }
     }
 
-    //Przycisk usuwający klienta zaznaczonego
+    // Usuwa zaznaczonego klienta z bazy danych (jeśli nie ma rezerwacji)
     private void btnDeleteClient_Click(object sender, EventArgs e)
     {
         try
@@ -239,11 +169,20 @@ public partial class MainForm : Form
                 return;
             }
 
-            // Pobieramy ID z zaznaczonego wiersza (kolumna ClientId)
             var idObj = dgvClients.CurrentRow.Cells["ClientId"].Value;
             if (idObj == null || !long.TryParse(idObj.ToString(), out long clientId))
             {
                 MessageBox.Show("Nie udało się odczytać ID klienta.");
+                return;
+            }
+
+            using var db = new AppDbContext();
+
+            // BLOKADA: klient ma rezerwacje
+            bool hasReservations = db.Reservations.Any(r => r.ClientId == clientId);
+            if (hasReservations)
+            {
+                MessageBox.Show("Nie można usunąć klienta — ma przypisane rezerwacje.\nUsuń/zmień rezerwacje i spróbuj ponownie.");
                 return;
             }
 
@@ -256,9 +195,6 @@ public partial class MainForm : Form
             if (confirm != DialogResult.Yes)
                 return;
 
-            using var db = new AppDbContext();
-
-            // Uwaga: jeśli klient ma rezerwacje -> FK może zablokować usunięcie (i dobrze)
             var client = db.Clients.FirstOrDefault(c => c.ClientId == clientId);
             if (client == null)
             {
@@ -271,6 +207,7 @@ public partial class MainForm : Form
             db.SaveChanges();
 
             MessageBox.Show("Usunięto klienta ✅");
+            btnClearClientForm_Click(sender, e);
             LoadClients(txtSearchClient.Text);
         }
         catch (Exception ex)
@@ -278,5 +215,164 @@ public partial class MainForm : Form
             MessageBox.Show("Błąd: " + ex.Message);
         }
     }
+
+    // Aktualizuje dane zaznaczonego klienta w bazie danych
+    private void btnUpdateClient_Click(object sender, EventArgs e)
+    {
+        try
+        {
+            if (_selectedClientId is null)
+            {
+                MessageBox.Show("Najpierw zaznacz klienta w tabeli.");
+                return;
+            }
+
+            if (!ValidateClientInputs(out var firstName, out var lastName,
+                    out var email, out var phone, out var city, out var address, out var postalCode))
+                return;
+
+            using var db = new AppDbContext();
+
+            // duplikat email, ale z wykluczeniem aktualnie edytowanego klienta
+            if (email is not null)
+            {
+                bool exists = db.Clients.Any(c => c.Email == email && c.ClientId != _selectedClientId.Value);
+                if (exists)
+                {
+                    MessageBox.Show("Inny klient ma już taki adres e-mail.");
+                    return;
+                }
+            }
+
+            var client = db.Clients.FirstOrDefault(c => c.ClientId == _selectedClientId.Value);
+            if (client == null)
+            {
+                MessageBox.Show("Klient nie istnieje (mógł zostać usunięty).");
+                LoadClients(txtSearchClient.Text);
+                return;
+            }
+
+            client.FirstName = firstName;
+            client.LastName = lastName;
+            client.Email = email;
+            client.Phone = phone;
+            client.City = city;
+            client.Address = address;
+            client.PostalCode = postalCode;
+
+            db.SaveChanges();
+
+            MessageBox.Show("Zapisano zmiany ✅");
+            LoadClients(txtSearchClient.Text);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show("Błąd: " + ex.Message);
+        }
+    }
+
+    // Czyści formularz klienta oraz resetuje zaznaczenie w tabeli
+    private void btnClearClientForm_Click(object sender, EventArgs e)
+    {
+        _selectedClientId = null;
+
+        txtFirstName.Clear();
+        txtLastName.Clear();
+        txtEmail.Clear();
+        txtPhone.Clear();
+        txtAddress.Clear();
+        txtCity.Clear();
+        txtPostalCode.Clear();
+
+        dgvClients.ClearSelection();
+    }
+
+    // Obsługuje kliknięcie w tabeli klientów i uzupełnia formularz danymi klienta
+    private void dgvClients_CellClick(object sender, DataGridViewCellEventArgs e)
+    {
+        try
+        {
+            if (dgvClients.CurrentRow == null) return;
+
+            _selectedClientId = Convert.ToInt64(dgvClients.CurrentRow.Cells["ClientId"].Value);
+
+            txtFirstName.Text = dgvClients.CurrentRow.Cells["FirstName"].Value?.ToString() ?? "";
+            txtLastName.Text = dgvClients.CurrentRow.Cells["LastName"].Value?.ToString() ?? "";
+            txtEmail.Text = dgvClients.CurrentRow.Cells["Email"].Value?.ToString() ?? "";
+            txtPhone.Text = dgvClients.CurrentRow.Cells["Phone"].Value?.ToString() ?? "";
+            txtAddress.Text = dgvClients.CurrentRow.Cells["Address"].Value?.ToString() ?? "";
+            txtCity.Text = dgvClients.CurrentRow.Cells["City"].Value?.ToString() ?? "";
+            txtPostalCode.Text = dgvClients.CurrentRow.Cells["PostalCode"].Value?.ToString() ?? "";
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show("Błąd: " + ex.Message);
+        }
+    }
+
+    // Waliduje dane klienta (wspólna metoda dla dodawania i edycji)
+    private bool ValidateClientInputs(out string firstName, out string lastName,
+    out string? email, out string? phone, out string? city, out string? address, out string? postalCode)
+    {
+        firstName = txtFirstName.Text.Trim();
+        lastName = txtLastName.Text.Trim();
+        email = string.IsNullOrWhiteSpace(txtEmail.Text) ? null : txtEmail.Text.Trim();
+        phone = string.IsNullOrWhiteSpace(txtPhone.Text) ? null : txtPhone.Text.Trim();
+        city = string.IsNullOrWhiteSpace(txtCity.Text) ? null : txtCity.Text.Trim();
+        address = string.IsNullOrWhiteSpace(txtAddress.Text) ? null : txtAddress.Text.Trim();
+        postalCode = string.IsNullOrWhiteSpace(txtPostalCode.Text) ? null : txtPostalCode.Text.Trim();
+
+        if (firstName.Length < 2) { MessageBox.Show("Imię musi mieć co najmniej 2 znaki."); return false; }
+        if (lastName.Length < 2) { MessageBox.Show("Nazwisko musi mieć co najmniej 2 znaki."); return false; }
+
+        // email jeśli podany
+        if (email is not null)
+        {
+            int at = email.IndexOf('@');
+            int dot = email.LastIndexOf('.');
+            if (at <= 0 || dot <= at + 1 || dot == email.Length - 1)
+            {
+                MessageBox.Show("Podaj poprawny adres e-mail.");
+                return false;
+            }
+            if (email.Length > 120) { MessageBox.Show("Email max 120 znaków."); return false; }
+        }
+
+        // telefon jeśli podany
+        if (phone is not null)
+        {
+            string cleaned = phone.Replace(" ", "").Replace("-", "");
+            if (cleaned.StartsWith("+")) cleaned = cleaned[1..];
+
+            if (cleaned.Length < 7 || cleaned.Length > 15 || !cleaned.All(char.IsDigit))
+            {
+                MessageBox.Show("Podaj poprawny numer telefonu (7–15 cyfr).");
+                return false;
+            }
+            if (phone.Length > 20) { MessageBox.Show("Telefon max 20 znaków."); return false; }
+        }
+
+        // kod pocztowy jeśli podany
+        if (postalCode is not null)
+        {
+            string pc = postalCode.Replace(" ", "");
+            bool ok =
+                (pc.Length == 6 && pc[2] == '-' && pc.Take(2).All(char.IsDigit) && pc.Skip(3).All(char.IsDigit)) ||
+                (pc.Length == 5 && pc.All(char.IsDigit));
+
+            if (!ok)
+            {
+                MessageBox.Show("Kod pocztowy jest niepoprawny. Użyj formatu 00-000 lub 00000.");
+                return false;
+            }
+            if (postalCode.Length > 10) { MessageBox.Show("Kod pocztowy max 10 znaków."); return false; }
+        }
+
+        if (address is not null && address.Length > 120) { MessageBox.Show("Adres max 120 znaków."); return false; }
+        if (city is not null && city.Length > 60) { MessageBox.Show("Miasto max 60 znaków."); return false; }
+
+        return true;
+    }
+
 
 }

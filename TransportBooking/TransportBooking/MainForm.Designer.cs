@@ -64,6 +64,8 @@
             label3 = new Label();
             label2 = new Label();
             label1 = new Label();
+            btnUpdateClient = new Button();
+            btnClearClientForm = new Button();
             ((System.ComponentModel.ISupportInitialize)dgvClients).BeginInit();
             tabControl1.SuspendLayout();
             tabPage1.SuspendLayout();
@@ -83,17 +85,18 @@
             // dgvClients
             // 
             dgvClients.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dgvClients.Location = new Point(326, 16);
+            dgvClients.Location = new Point(367, 16);
             dgvClients.Name = "dgvClients";
             dgvClients.RowHeadersWidth = 51;
-            dgvClients.Size = new Size(752, 219);
+            dgvClients.Size = new Size(711, 303);
             dgvClients.TabIndex = 1;
+            dgvClients.CellClick += dgvClients_CellClick;
             // 
             // btnLoadClients
             // 
-            btnLoadClients.Location = new Point(326, 241);
+            btnLoadClients.Location = new Point(367, 343);
             btnLoadClients.Name = "btnLoadClients";
-            btnLoadClients.Size = new Size(752, 48);
+            btnLoadClients.Size = new Size(711, 48);
             btnLoadClients.TabIndex = 2;
             btnLoadClients.Text = "Wczytaj klientów";
             btnLoadClients.UseVisualStyleBackColor = true;
@@ -113,11 +116,13 @@
             tabControl1.Location = new Point(12, 12);
             tabControl1.Name = "tabControl1";
             tabControl1.SelectedIndex = 0;
-            tabControl1.Size = new Size(1114, 430);
+            tabControl1.Size = new Size(1114, 543);
             tabControl1.TabIndex = 3;
             // 
             // tabPage1
             // 
+            tabPage1.Controls.Add(btnClearClientForm);
+            tabPage1.Controls.Add(btnUpdateClient);
             tabPage1.Controls.Add(btnDeleteClient);
             tabPage1.Controls.Add(btnSearchClient);
             tabPage1.Controls.Add(txtSearchClient);
@@ -141,16 +146,16 @@
             tabPage1.Location = new Point(4, 29);
             tabPage1.Name = "tabPage1";
             tabPage1.Padding = new Padding(3);
-            tabPage1.Size = new Size(1106, 397);
+            tabPage1.Size = new Size(1106, 510);
             tabPage1.TabIndex = 0;
             tabPage1.Text = "Klienci";
             tabPage1.UseVisualStyleBackColor = true;
             // 
             // btnDeleteClient
             // 
-            btnDeleteClient.Location = new Point(835, 304);
+            btnDeleteClient.Location = new Point(876, 419);
             btnDeleteClient.Name = "btnDeleteClient";
-            btnDeleteClient.Size = new Size(243, 27);
+            btnDeleteClient.Size = new Size(202, 27);
             btnDeleteClient.TabIndex = 17;
             btnDeleteClient.Text = "Usuń zaznaczonego klienta";
             btnDeleteClient.UseVisualStyleBackColor = true;
@@ -158,9 +163,9 @@
             // 
             // btnSearchClient
             // 
-            btnSearchClient.Location = new Point(665, 304);
+            btnSearchClient.Location = new Point(706, 419);
             btnSearchClient.Name = "btnSearchClient";
-            btnSearchClient.Size = new Size(164, 27);
+            btnSearchClient.Size = new Size(123, 27);
             btnSearchClient.TabIndex = 16;
             btnSearchClient.Text = "Wyszukaj klienta";
             btnSearchClient.UseVisualStyleBackColor = true;
@@ -168,9 +173,9 @@
             // 
             // txtSearchClient
             // 
-            txtSearchClient.Location = new Point(326, 304);
+            txtSearchClient.Location = new Point(367, 419);
             txtSearchClient.Name = "txtSearchClient";
-            txtSearchClient.Size = new Size(333, 27);
+            txtSearchClient.Size = new Size(292, 27);
             txtSearchClient.TabIndex = 15;
             // 
             // label10
@@ -426,11 +431,31 @@
             label1.TabIndex = 1;
             label1.Text = "Nazwa bazy danych: transport_db";
             // 
+            // btnUpdateClient
+            // 
+            btnUpdateClient.Location = new Point(25, 398);
+            btnUpdateClient.Name = "btnUpdateClient";
+            btnUpdateClient.Size = new Size(125, 48);
+            btnUpdateClient.TabIndex = 18;
+            btnUpdateClient.Text = "Zapisz zmiany";
+            btnUpdateClient.UseVisualStyleBackColor = true;
+            btnUpdateClient.Click += btnUpdateClient_Click;
+            // 
+            // btnClearClientForm
+            // 
+            btnClearClientForm.Location = new Point(182, 398);
+            btnClearClientForm.Name = "btnClearClientForm";
+            btnClearClientForm.Size = new Size(125, 48);
+            btnClearClientForm.TabIndex = 19;
+            btnClearClientForm.Text = "Wyczyść pola";
+            btnClearClientForm.UseVisualStyleBackColor = true;
+            btnClearClientForm.Click += btnClearClientForm_Click;
+            // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1156, 454);
+            ClientSize = new Size(1156, 567);
             Controls.Add(tabControl1);
             Name = "MainForm";
             Text = "Panel Admina - Zarządzanie transportem";
@@ -481,5 +506,7 @@
         private Button btnDeleteClient;
         private Button btnSearchClient;
         private TextBox txtSearchClient;
+        private Button btnClearClientForm;
+        private Button btnUpdateClient;
     }
 }
