@@ -961,4 +961,21 @@ public partial class MainForm : Form
 
         dgvRoutes.ClearSelection();
     }
+
+
+    // ID zaznaczonej rezerwacji
+    private long? _selectedReservationId = null;
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
