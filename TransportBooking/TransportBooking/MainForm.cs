@@ -4,38 +4,31 @@ using TransportBooking.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using TransportBooking.Domain.Entities;
 
+using System.Text;
+
+
 public partial class MainForm : Form
 {
     public MainForm()
     {
         InitializeComponent();
+
+        cmbServiceType.Items.Clear();
+        cmbServiceType.Items.AddRange(new object[] { "PERSON", "PACKAGE" });
+        cmbServiceType.SelectedIndex = 0;
+
+
+
+        cmbResStatus.Items.Clear();
+        cmbResStatus.Items.AddRange(new object[] { "CONFIRMED", "NEW", "CANCELLED", "DONE" });
+        cmbResStatus.SelectedIndex = 0;
+
+        dtpResCreatedAt.Value = DateTime.Now;
+
+        lblDbStatus.Text = "Status: —";
+        if (txtDbDetails != null) txtDbDetails.Text = "Kliknij „Test połączenia z bazą”.";
+
     }
-
-    //Testowanie połącznia z bazą danych
-    private void btnTestDb_Click(object sender, EventArgs e)
-    {
-        try
-        {
-            using var db = new AppDbContext();
-            var ok = db.Database.CanConnect();
-
-            if (db_connect_info != null)
-            {
-                db_connect_info.Text = ok
-                    ? "Wynik połączenia: Połączono"
-                    : "Wynik połączenia: Brak połączenia";
-            }
-            else
-            {
-                MessageBox.Show("Label db_connect_info jest null");
-            }
-        }
-        catch (Exception ex)
-        {
-            MessageBox.Show(ex.Message);
-        }
-    }
-
 
 
     /* =========================================================
@@ -692,6 +685,7 @@ public partial class MainForm : Form
     // Przechowuje ID aktualnie zaznaczonej trasy w tabeli
     private long? _selectedRouteId = null;
 
+
     // Wczytuje listę pojazdów do ComboBox (wybór pojazdu dla trasy)
     private void LoadVehiclesToRouteCombo()
     {
@@ -711,6 +705,7 @@ public partial class MainForm : Form
         cmbRouteVehicle.DisplayMember = "Display";
         cmbRouteVehicle.ValueMember = "VehicleId";
     }
+
 
 
     // Ładuje listę tras z bazy danych (opcjonalnie z filtrem wyszukiwania)
@@ -735,6 +730,8 @@ public partial class MainForm : Form
             .ToList();
     }
 
+
+
     // Obsługuje przycisk wczytujący wszystkie trasy oraz pojazdy do ComboBox
     private void btnLoadRoutes_Click(object sender, EventArgs e)
     {
@@ -749,6 +746,8 @@ public partial class MainForm : Form
         }
     }
 
+
+
     // Wyszukuje trasy na podstawie miasta początkowego lub docelowego
     private void btnSearchRoute_Click(object sender, EventArgs e)
     {
@@ -761,6 +760,8 @@ public partial class MainForm : Form
             MessageBox.Show("Błąd: " + ex.Message);
         }
     }
+
+
 
     // Obsługuje kliknięcie w tabeli tras i uzupełnia formularz danymi trasy
     private void dgvRoutes_CellClick(object sender, DataGridViewCellEventArgs e)
@@ -788,6 +789,8 @@ public partial class MainForm : Form
             MessageBox.Show("Błąd: " + ex.Message);
         }
     }
+
+
 
     // Waliduje dane trasy (pojazd, miasta, data wyjazdu, cena)
     private bool ValidateRouteInputs(out long vehicleId, out string start, out string end, out DateTime departure, out decimal pricePerson)
@@ -831,6 +834,8 @@ public partial class MainForm : Form
         return true;
     }
 
+
+
     // Dodaje nową trasę do bazy danych po poprawnej walidacji danych
     private void btnAddRoute_Click(object sender, EventArgs e)
     {
@@ -865,6 +870,8 @@ public partial class MainForm : Form
         }
 
     }
+
+
 
     // Aktualizuje dane zaznaczonej trasy w bazie danych
     private void btnUpdateRoute_Click(object sender, EventArgs e)
@@ -906,6 +913,8 @@ public partial class MainForm : Form
             MessageBox.Show("Błąd: " + ex.Message);
         }
     }
+
+
 
     // Usuwa zaznaczoną trasę z bazy danych (jeśli nie istnieją rezerwacje)
     private void btnDeleteRoute_Click(object sender, EventArgs e)
@@ -949,6 +958,8 @@ public partial class MainForm : Form
         }
     }
 
+
+
     // Czyści formularz trasy oraz resetuje zaznaczenie w tabeli
     private void btnClearRouteForm_Click(object sender, EventArgs e)
     {
@@ -963,19 +974,524 @@ public partial class MainForm : Form
     }
 
 
-    // ID zaznaczonej rezerwacji
+
+    /* =========================================================
+   SEKCJA: REZERWACJE
+   ---------------------------------------------------------
+   Sekcja odpowiedzialna za obsługę rezerwacji przewozu osób
+   oraz paczek w systemie transportowym. Umożliwia:
+   - wyświetlanie listy rezerwacji zapisanych w bazie danych,
+   - wyszukiwanie rezerwacji po typie usługi i statusie,
+   - dodawanie nowych rezerwacji z przypisaniem klienta
+     oraz trasy,
+   - edycję danych istniejących rezerwacji,
+   - bezpieczne usuwanie rezerwacji (z blokadą, jeśli
+     istnieją powiązane płatności lub paczki).
+   
+   Rezerwacja zawiera informacje o kliencie, trasie,
+   typie usługi, statusie oraz dacie utworzenia.
+   Dane przechowywane są w bazie PostgreSQL, a operacje
+   CRUD realizowane są z wykorzystaniem Entity Framework Core.
+   ========================================================= */
+
+
+
+    // Przechowuje ID aktualnie zaznaczonej rezerwacji w tabeli
     private long? _selectedReservationId = null;
 
 
 
+    // Wczytuje listę klientów do ComboBox (wybór klienta dla rezerwacji)
+    private void LoadClientsToReservationCombo()
+    {
+        using var db = new AppDbContext();
+
+        var clients = db.Clients
+            .AsNoTracking()
+            .OrderByDescending(c => c.ClientId)
+            .Select(c => new
+            {
+                c.ClientId,
+                Display = $"{c.FirstName} {c.LastName} | {c.Email}"
+            })
+            .ToList();
+
+        cmbResClient.DataSource = clients;
+        cmbResClient.DisplayMember = "Display";
+        cmbResClient.ValueMember = "ClientId";
+    }
+
+
+
+    // Wczytuje listę tras do ComboBox (wybór trasy dla rezerwacji)
+    private void LoadRoutesToReservationCombo()
+    {
+        using var db = new AppDbContext();
+
+        var routes = db.Routes
+            .AsNoTracking()
+            .OrderByDescending(r => r.RouteId)
+            .Select(r => new
+            {
+                r.RouteId,
+                Display = $"{r.StartCity} -> {r.EndCity} | {r.DepartureTime} | {r.PricePerson} zł"
+            })
+            .ToList();
+
+        cmbResRoute.DataSource = routes;
+        cmbResRoute.DisplayMember = "Display";
+        cmbResRoute.ValueMember = "RouteId";
+    }
+
+
+
+    // Ładuje listę rezerwacji z bazy danych (opcjonalnie z filtrem wyszukiwania)
+    private void LoadReservations(string? filter = null)
+    {
+        using var db = new AppDbContext();
+
+        var q = db.Reservations.AsNoTracking().AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(filter))
+        {
+            filter = filter.Trim().ToLower();
+
+            q = q.Where(r =>
+                r.ServiceType.ToLower().Contains(filter) ||
+                r.Status.ToLower().Contains(filter)
+            );
+        }
+
+        dgvReservations.DataSource = q
+            .OrderByDescending(r => r.ReservationId)
+            .ToList();
+    }
+
+
+
+    // Obsługuje przycisk wczytujący wszystkie rezerwacje oraz dane do ComboBoxów
+    private void btnLoadReservations_Click(object sender, EventArgs e)
+    {
+        try
+        {
+            LoadClientsToReservationCombo();
+            LoadRoutesToReservationCombo();
+            LoadReservations();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show("Błąd: " + ex.Message);
+        }
+    }
+
+
+
+    // Wyszukuje rezerwacje na podstawie typu usługi lub statusu
+    private void btnSearchReservation_Click(object sender, EventArgs e)
+    {
+        try
+        {
+            LoadReservations(txtSearchReservation.Text);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show("Błąd: " + ex.Message);
+        }
+    }
+
+
+
+    // Obsługuje kliknięcie w tabeli rezerwacji i uzupełnia formularz danymi rezerwacji
+    private void dgvReservations_CellClick(object sender, DataGridViewCellEventArgs e)
+    {
+        try
+        {
+            if (dgvReservations.CurrentRow == null) return;
+
+            _selectedReservationId = Convert.ToInt64(dgvReservations.CurrentRow.Cells["ReservationId"].Value);
+
+            // ustaw klienta i trasę
+            var clientIdObj = dgvReservations.CurrentRow.Cells["ClientId"].Value;
+            var routeIdObj = dgvReservations.CurrentRow.Cells["RouteId"].Value;
+
+            if (clientIdObj != null) cmbResClient.SelectedValue = Convert.ToInt64(clientIdObj);
+            if (routeIdObj != null) cmbResRoute.SelectedValue = Convert.ToInt64(routeIdObj);
+
+            // service type / status
+            cmbServiceType.SelectedItem = dgvReservations.CurrentRow.Cells["ServiceType"].Value?.ToString() ?? "osoby";
+            cmbResStatus.SelectedItem = dgvReservations.CurrentRow.Cells["Status"].Value?.ToString() ?? "new";
+
+            // created_at (UTC->Local jeśli zapisujesz UTC)
+            if (dgvReservations.CurrentRow.Cells["CreatedAt"].Value is DateTime dt)
+                dtpResCreatedAt.Value = dt.Kind == DateTimeKind.Utc ? dt.ToLocalTime() : dt;
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show("Błąd: " + ex.Message);
+        }
+    }
+
+
+
+    // Waliduje dane rezerwacji (klient, trasa, typ usługi, status, data)
+    private bool ValidateReservationInputs(out long clientId, out long routeId, out string serviceType, out string status, out DateTime createdAtUtc)
+    {
+        clientId = 0;
+        routeId = 0;
+        serviceType = cmbServiceType.SelectedItem?.ToString() ?? "osoby";
+        status = cmbResStatus.SelectedItem?.ToString() ?? "new";
+
+        if (cmbResClient.SelectedValue == null || !long.TryParse(cmbResClient.SelectedValue.ToString(), out clientId))
+        {
+            MessageBox.Show("Wybierz klienta.");
+            createdAtUtc = DateTime.UtcNow;
+            return false;
+        }
+
+        if (cmbResRoute.SelectedValue == null || !long.TryParse(cmbResRoute.SelectedValue.ToString(), out routeId))
+        {
+            MessageBox.Show("Wybierz trasę.");
+            createdAtUtc = DateTime.UtcNow;
+            return false;
+        }
+
+        if (serviceType != "PERSON" && serviceType != "PACKAGE")
+        {
+            MessageBox.Show("Niepoprawny typ usługi.");
+            createdAtUtc = DateTime.UtcNow;
+            return false;
+        }
+
+
+
+        if (status.Length < 2)
+        {
+            MessageBox.Show("Status jest niepoprawny.");
+            createdAtUtc = DateTime.UtcNow;
+            return false;
+        }
+
+        // zapisuj w UTC (bezpiecznie dla Postgres timestamptz)
+        createdAtUtc = DateTime.SpecifyKind(dtpResCreatedAt.Value, DateTimeKind.Local).ToUniversalTime();
+        return true;
+    }
+
+
+
+    // Dodaje nową rezerwację do bazy danych po poprawnej walidacji danych
+    private void btnAddReservation_Click(object sender, EventArgs e)
+    {
+        try
+        {
+            if (!ValidateReservationInputs(out var clientId, out var routeId, out var serviceType, out var status, out var createdAtUtc))
+                return;
+
+            using var db = new AppDbContext();
+
+            var res = new Reservation
+            {
+                ClientId = clientId,
+                RouteId = routeId,
+                ServiceType = serviceType,
+                Status = status,
+                CreatedAt = createdAtUtc
+            };
+
+            db.Reservations.Add(res);
+            db.SaveChanges();
+
+            MessageBox.Show("Dodano rezerwację ✅");
+            btnClearReservationForm_Click(sender, e);
+            LoadReservations(txtSearchReservation.Text);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show("Błąd: " + (ex.InnerException?.Message ?? ex.Message));
+        }
+    }
+
+
+
+    // Aktualizuje dane zaznaczonej rezerwacji w bazie danych
+    private void btnUpdateReservation_Click(object sender, EventArgs e)
+    {
+        try
+        {
+            if (_selectedReservationId is null)
+            {
+                MessageBox.Show("Zaznacz rezerwację w tabeli.");
+                return;
+            }
+
+            if (!ValidateReservationInputs(out var clientId, out var routeId, out var serviceType, out var status, out var createdAtUtc))
+                return;
+
+            using var db = new AppDbContext();
+
+            var res = db.Reservations.FirstOrDefault(r => r.ReservationId == _selectedReservationId.Value);
+            if (res == null)
+            {
+                MessageBox.Show("Rezerwacja nie istnieje.");
+                LoadReservations();
+                return;
+            }
+
+            res.ClientId = clientId;
+            res.RouteId = routeId;
+            res.ServiceType = serviceType;
+            res.Status = status;
+            res.CreatedAt = createdAtUtc;
+
+            db.SaveChanges();
+
+            MessageBox.Show("Zapisano zmiany ✅");
+            LoadReservations(txtSearchReservation.Text);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show("Błąd: " + (ex.InnerException?.Message ?? ex.Message));
+        }
+    }
+
+
+
+    // Usuwa zaznaczoną rezerwację z bazy danych (jeśli brak powiązań)
+    private void btnDeleteReservation_Click(object sender, EventArgs e)
+    {
+        try
+        {
+            if (_selectedReservationId is null)
+            {
+                MessageBox.Show("Zaznacz rezerwację w tabeli.");
+                return;
+            }
+
+            using var db = new AppDbContext();
+
+            bool hasPayments = db.Payments.Any(p => p.ReservationId == _selectedReservationId.Value);
+            bool hasPackages = db.Packages.Any(p => p.ReservationId == _selectedReservationId.Value);
+
+            if (hasPayments || hasPackages)
+            {
+                MessageBox.Show("Nie można usunąć rezerwacji — istnieją powiązane płatności lub paczki.");
+                return;
+            }
+
+            var confirm = MessageBox.Show("Czy na pewno usunąć rezerwację?", "Potwierdzenie",
+                MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+
+            if (confirm != DialogResult.Yes) return;
+
+            var res = db.Reservations.First(r => r.ReservationId == _selectedReservationId.Value);
+            db.Reservations.Remove(res);
+            db.SaveChanges();
+
+            MessageBox.Show("Usunięto rezerwację ✅");
+            btnClearReservationForm_Click(sender, e);
+            LoadReservations();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show("Błąd: " + (ex.InnerException?.Message ?? ex.Message));
+        }
+    }
+
+
+
+    // Czyści formularz rezerwacji oraz resetuje zaznaczenie w tabeli
+    private void btnClearReservationForm_Click(object sender, EventArgs e)
+    {
+        _selectedReservationId = null;
+
+        txtSearchReservation.Clear();
+        dtpResCreatedAt.Value = DateTime.Now;
+
+        dgvReservations.ClearSelection();
+    }
 
 
 
 
+    /* =========================================================
+   SEKCJA: RAPORT CSV
+   ---------------------------------------------------------
+   Sekcja odpowiedzialna za generowanie raportów miesięcznych
+   w formacie CSV na podstawie danych zapisanych w bazie
+   danych systemu rezerwacji transportu.
+   
+   Raport obejmuje rezerwacje z wybranego miesiąca i zawiera
+   m.in. informacje o:
+   - rezerwacji (ID, data utworzenia, typ usługi, status),
+   - kliencie (ID, imię i nazwisko, e-mail),
+   - trasie (miasta, data wyjazdu, cena za osobę).
+   
+   Dane eksportowane są do pliku CSV z kodowaniem UTF-8,
+   kompatybilnego z arkuszami kalkulacyjnymi (np. Excel).
+   ========================================================= */
+
+
+    // Obsługuje eksport rezerwacji z wybranego miesiąca do pliku CSV
+    private void btnExportCsv_Click(object sender, EventArgs e)
+    {
+        try
+        {
+            var localMonth = new DateTime(dtpReportMonth.Value.Year, dtpReportMonth.Value.Month, 1);
+
+            var startUtc = DateTime.SpecifyKind(localMonth, DateTimeKind.Local).ToUniversalTime();
+            var endUtc = DateTime.SpecifyKind(localMonth.AddMonths(1), DateTimeKind.Local).ToUniversalTime();
+
+            using var db = new AppDbContext();
+
+            // Pobieramy dane JOINem (bez nawigacji EF)
+            var data = (
+                from r in db.Reservations.AsNoTracking()
+                join c in db.Clients.AsNoTracking() on r.ClientId equals c.ClientId
+                join ro in db.Routes.AsNoTracking() on r.RouteId equals ro.RouteId
+                where r.CreatedAt >= startUtc && r.CreatedAt < endUtc
+                orderby r.CreatedAt
+                select new
+                {
+                    r.ReservationId,
+                    r.CreatedAt,
+                    r.ServiceType,
+                    r.Status,
+
+                    r.ClientId,
+                    ClientName = c.FirstName + " " + c.LastName,
+                    ClientEmail = c.Email,
+
+                    r.RouteId,
+                    ro.StartCity,
+                    ro.EndCity,
+                    ro.DepartureTime,
+                    ro.PricePerson
+                }
+            ).ToList();
+
+            using var sfd = new SaveFileDialog
+            {
+                FileName = $"raport_rezerwacje_{localMonth:yyyy_MM}.csv",
+                Filter = "CSV (*.csv)|*.csv",
+                Title = "Zapisz raport CSV"
+            };
+
+            if (sfd.ShowDialog() != DialogResult.OK)
+                return;
+
+            var sb = new StringBuilder();
+
+            sb.AppendLine("ReservationId;CreatedAt;ServiceType;Status;ClientId;ClientName;ClientEmail;RouteId;StartCity;EndCity;DepartureTime;PricePerson");
+
+            foreach (var x in data)
+            {
+                var createdLocal = x.CreatedAt.Kind == DateTimeKind.Utc ? x.CreatedAt.ToLocalTime() : x.CreatedAt;
+
+                var depLocal = x.DepartureTime;
+                if (depLocal.Kind == DateTimeKind.Utc)
+                    depLocal = depLocal.ToLocalTime();
+
+                sb.AppendLine(string.Join(";",
+                    Csv(x.ReservationId),
+                    Csv(createdLocal.ToString("yyyy-MM-dd HH:mm")),
+                    Csv(x.ServiceType),
+                    Csv(x.Status),
+                    Csv(x.ClientId),
+                    Csv(x.ClientName),
+                    Csv(x.ClientEmail),
+                    Csv(x.RouteId),
+                    Csv(x.StartCity),
+                    Csv(x.EndCity),
+                    Csv(depLocal.ToString("yyyy-MM-dd HH:mm")),
+                    Csv(x.PricePerson.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture))
+                ));
+            }
+
+            File.WriteAllText(sfd.FileName, sb.ToString(), new UTF8Encoding(true));
+
+            MessageBox.Show($"Zapisano CSV ✅\nRekordów: {data.Count}");
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show("Błąd: " + (ex.InnerException?.Message ?? ex.Message));
+        }
+    }
+
+
+
+    // Funkcja pomocnicza formatująca dane do bezpiecznego zapisu CSV
+    // (obsługa separatorów, znaków nowej linii i cudzysłowów)
+    private static string Csv(object? value)
+    {
+        var s = value?.ToString() ?? "";
+        s = s.Replace("\"", "\"\"");
+        if (s.Contains(';') || s.Contains('\n') || s.Contains('\r') || s.Contains('"'))
+            return $"\"{s}\"";
+        return s;
+    }
 
 
 
 
+    /* =========================================================
+   SEKCJA: POŁĄCZENIE Z BAZĄ DANYCH
+   ---------------------------------------------------------
+   Sekcja odpowiedzialna za sprawdzenie poprawności połączenia
+   aplikacji z bazą danych PostgreSQL.
+   
+   Umożliwia szybkie przetestowanie, czy aplikacja ma dostęp
+   do bazy danych oraz czy konfiguracja połączenia została
+   wykonana poprawnie.
+   
+   Test realizowany jest z wykorzystaniem metody CanConnect()
+   z Entity Framework Core, a wynik prezentowany jest w formie
+   czytelnego komunikatu dla użytkownika.
+   ========================================================= */
 
+
+
+    // Testuje połączenie z bazą danych i wyświetla status oraz szczegóły błędu
+    private void btnTestDb_Click(object sender, EventArgs e)
+    {
+        try
+        {
+            lblDbStatus.Text = "Status: sprawdzam...";
+            if (txtDbDetails != null) txtDbDetails.Clear();
+
+            using var db = new AppDbContext();
+
+            // Najprostszy test: czy aplikacja potrafi połączyć się z bazą
+            bool ok = db.Database.CanConnect();
+
+            if (ok)
+            {
+                lblDbStatus.Text = "Status: Połączenie z bazą OK";
+                if (txtDbDetails != null)
+                    txtDbDetails.Text = $"Data: {DateTime.Now:yyyy-MM-dd HH:mm:ss}\r\nWynik: CanConnect() = true";
+            }
+            else
+            {
+                lblDbStatus.Text = "Status: Brak połączenia z bazą";
+                if (txtDbDetails != null)
+                    txtDbDetails.Text = $"Data: {DateTime.Now:yyyy-MM-dd HH:mm:ss}\r\nWynik: CanConnect() = false";
+            }
+        }
+        catch (Exception ex)
+        {
+            lblDbStatus.Text = "Status: Błąd połączenia ❌";
+
+            var details = ex.InnerException?.Message ?? ex.Message;
+
+            if (txtDbDetails != null)
+            {
+                txtDbDetails.Text =
+                    $"Data: {DateTime.Now:yyyy-MM-dd HH:mm:ss}\r\n" +
+                    $"Błąd: {details}\r\n\r\n" +
+                    $"Typ wyjątku: {ex.GetType().Name}";
+            }
+
+            MessageBox.Show("Błąd połączenia z bazą: " + details);
+        }
+    }
 
 }
+

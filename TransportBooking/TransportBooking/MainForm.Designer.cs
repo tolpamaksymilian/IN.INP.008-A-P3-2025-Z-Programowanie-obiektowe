@@ -29,14 +29,29 @@
         private void InitializeComponent()
         {
             tabPage9 = new TabPage();
-            db_connect_info = new Label();
-            label4 = new Label();
-            label3 = new Label();
-            label2 = new Label();
-            label1 = new Label();
-            btnTestDb = new Button();
             tabPage5 = new TabPage();
+            label25 = new Label();
+            btnExportCsv = new Button();
+            dtpReportMonth = new DateTimePicker();
             tabPage4 = new TabPage();
+            btnClearReservationForm = new Button();
+            btnDeleteReservation = new Button();
+            btnUpdateReservation = new Button();
+            btnAddReservation = new Button();
+            btnLoadReservations = new Button();
+            txtSearchReservation = new TextBox();
+            btnSearchReservation = new Button();
+            label24 = new Label();
+            dtpResCreatedAt = new DateTimePicker();
+            label23 = new Label();
+            cmbResStatus = new ComboBox();
+            label22 = new Label();
+            cmbServiceType = new ComboBox();
+            label21 = new Label();
+            cmbResRoute = new ComboBox();
+            label20 = new Label();
+            cmbResClient = new ComboBox();
+            dgvReservations = new DataGridView();
             tabPage3 = new TabPage();
             label19 = new Label();
             label18 = new Label();
@@ -96,26 +111,13 @@
             label6 = new Label();
             label5 = new Label();
             tabControl1 = new TabControl();
-            dgvReservations = new DataGridView();
-            cmbResClient = new ComboBox();
-            label20 = new Label();
-            label21 = new Label();
-            cmbResRoute = new ComboBox();
-            label22 = new Label();
-            cmbServiceType = new ComboBox();
-            label23 = new Label();
-            cmbResStatus = new ComboBox();
-            dtpResCreatedAt = new DateTimePicker();
-            label24 = new Label();
-            btnSearchReservation = new Button();
-            textBox1 = new TextBox();
-            btnLoadReservations = new Button();
-            btnAddReservation = new Button();
-            btnUpdateReservation = new Button();
-            btnDeleteReservation = new Button();
-            btnClearReservationForm = new Button();
+            btnTestDb = new Button();
+            lblDbStatus = new Label();
+            txtDbDetails = new TextBox();
             tabPage9.SuspendLayout();
+            tabPage5.SuspendLayout();
             tabPage4.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)dgvReservations).BeginInit();
             tabPage3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dgvRoutes).BeginInit();
             tabVehicles.SuspendLayout();
@@ -123,16 +125,12 @@
             tabPage1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dgvClients).BeginInit();
             tabControl1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)dgvReservations).BeginInit();
             SuspendLayout();
             // 
             // tabPage9
             // 
-            tabPage9.Controls.Add(db_connect_info);
-            tabPage9.Controls.Add(label4);
-            tabPage9.Controls.Add(label3);
-            tabPage9.Controls.Add(label2);
-            tabPage9.Controls.Add(label1);
+            tabPage9.Controls.Add(txtDbDetails);
+            tabPage9.Controls.Add(lblDbStatus);
             tabPage9.Controls.Add(btnTestDb);
             tabPage9.Location = new Point(4, 29);
             tabPage9.Name = "tabPage9";
@@ -142,63 +140,11 @@
             tabPage9.Text = "Test połączenia z bazą";
             tabPage9.UseVisualStyleBackColor = true;
             // 
-            // db_connect_info
-            // 
-            db_connect_info.AutoSize = true;
-            db_connect_info.Location = new Point(20, 182);
-            db_connect_info.Name = "db_connect_info";
-            db_connect_info.Size = new Size(128, 20);
-            db_connect_info.TabIndex = 5;
-            db_connect_info.Text = "Wynik połączenia:";
-            // 
-            // label4
-            // 
-            label4.AutoSize = true;
-            label4.Location = new Point(20, 108);
-            label4.Name = "label4";
-            label4.Size = new Size(74, 20);
-            label4.TabIndex = 4;
-            label4.Text = "Port: 5432";
-            // 
-            // label3
-            // 
-            label3.AutoSize = true;
-            label3.Location = new Point(20, 79);
-            label3.Name = "label3";
-            label3.Size = new Size(126, 20);
-            label3.TabIndex = 3;
-            label3.Text = "Hasło: ************";
-            // 
-            // label2
-            // 
-            label2.AutoSize = true;
-            label2.Location = new Point(20, 49);
-            label2.Name = "label2";
-            label2.Size = new Size(210, 20);
-            label2.TabIndex = 2;
-            label2.Text = "Nazwa uzytkownika: username";
-            // 
-            // label1
-            // 
-            label1.AutoSize = true;
-            label1.Location = new Point(20, 19);
-            label1.Name = "label1";
-            label1.Size = new Size(231, 20);
-            label1.TabIndex = 1;
-            label1.Text = "Nazwa bazy danych: transport_db";
-            // 
-            // btnTestDb
-            // 
-            btnTestDb.Location = new Point(20, 141);
-            btnTestDb.Name = "btnTestDb";
-            btnTestDb.Size = new Size(263, 29);
-            btnTestDb.TabIndex = 0;
-            btnTestDb.Text = "TEST POŁĄCZENIA Z BAZĄ DANYCH";
-            btnTestDb.UseVisualStyleBackColor = true;
-            btnTestDb.Click += btnTestDb_Click;
-            // 
             // tabPage5
             // 
+            tabPage5.Controls.Add(label25);
+            tabPage5.Controls.Add(btnExportCsv);
+            tabPage5.Controls.Add(dtpReportMonth);
             tabPage5.Location = new Point(4, 29);
             tabPage5.Name = "tabPage5";
             tabPage5.Padding = new Padding(3);
@@ -207,6 +153,35 @@
             tabPage5.Text = "Raport CSV";
             tabPage5.UseVisualStyleBackColor = true;
             // 
+            // label25
+            // 
+            label25.AutoSize = true;
+            label25.Location = new Point(22, 21);
+            label25.Name = "label25";
+            label25.Size = new Size(223, 20);
+            label25.TabIndex = 2;
+            label25.Text = "Wybierz miesiąc i kliknij eksport.";
+            // 
+            // btnExportCsv
+            // 
+            btnExportCsv.Location = new Point(22, 87);
+            btnExportCsv.Name = "btnExportCsv";
+            btnExportCsv.Size = new Size(333, 29);
+            btnExportCsv.TabIndex = 1;
+            btnExportCsv.Text = "Eksportuj CSV";
+            btnExportCsv.UseVisualStyleBackColor = true;
+            btnExportCsv.Click += btnExportCsv_Click;
+            // 
+            // dtpReportMonth
+            // 
+            dtpReportMonth.CustomFormat = "MM.yyyy";
+            dtpReportMonth.Format = DateTimePickerFormat.Custom;
+            dtpReportMonth.Location = new Point(22, 54);
+            dtpReportMonth.Name = "dtpReportMonth";
+            dtpReportMonth.ShowUpDown = true;
+            dtpReportMonth.Size = new Size(333, 27);
+            dtpReportMonth.TabIndex = 0;
+            // 
             // tabPage4
             // 
             tabPage4.Controls.Add(btnClearReservationForm);
@@ -214,7 +189,7 @@
             tabPage4.Controls.Add(btnUpdateReservation);
             tabPage4.Controls.Add(btnAddReservation);
             tabPage4.Controls.Add(btnLoadReservations);
-            tabPage4.Controls.Add(textBox1);
+            tabPage4.Controls.Add(txtSearchReservation);
             tabPage4.Controls.Add(btnSearchReservation);
             tabPage4.Controls.Add(label24);
             tabPage4.Controls.Add(dtpResCreatedAt);
@@ -234,6 +209,167 @@
             tabPage4.TabIndex = 3;
             tabPage4.Text = "Rezerwacje";
             tabPage4.UseVisualStyleBackColor = true;
+            // 
+            // btnClearReservationForm
+            // 
+            btnClearReservationForm.Location = new Point(6, 413);
+            btnClearReservationForm.Name = "btnClearReservationForm";
+            btnClearReservationForm.Size = new Size(280, 29);
+            btnClearReservationForm.TabIndex = 17;
+            btnClearReservationForm.Text = "Wyczyść pola";
+            btnClearReservationForm.UseVisualStyleBackColor = true;
+            btnClearReservationForm.Click += btnClearReservationForm_Click;
+            // 
+            // btnDeleteReservation
+            // 
+            btnDeleteReservation.Location = new Point(6, 378);
+            btnDeleteReservation.Name = "btnDeleteReservation";
+            btnDeleteReservation.Size = new Size(280, 29);
+            btnDeleteReservation.TabIndex = 16;
+            btnDeleteReservation.Text = "Usuń rezerwację";
+            btnDeleteReservation.UseVisualStyleBackColor = true;
+            btnDeleteReservation.Click += btnDeleteReservation_Click;
+            // 
+            // btnUpdateReservation
+            // 
+            btnUpdateReservation.Location = new Point(147, 343);
+            btnUpdateReservation.Name = "btnUpdateReservation";
+            btnUpdateReservation.Size = new Size(139, 29);
+            btnUpdateReservation.TabIndex = 15;
+            btnUpdateReservation.Text = "Zapisz rezerwację";
+            btnUpdateReservation.UseVisualStyleBackColor = true;
+            btnUpdateReservation.Click += btnUpdateReservation_Click;
+            // 
+            // btnAddReservation
+            // 
+            btnAddReservation.Location = new Point(6, 343);
+            btnAddReservation.Name = "btnAddReservation";
+            btnAddReservation.Size = new Size(139, 29);
+            btnAddReservation.TabIndex = 14;
+            btnAddReservation.Text = "Dodaj rezerwację";
+            btnAddReservation.UseVisualStyleBackColor = true;
+            btnAddReservation.Click += btnAddReservation_Click;
+            // 
+            // btnLoadReservations
+            // 
+            btnLoadReservations.Location = new Point(315, 105);
+            btnLoadReservations.Name = "btnLoadReservations";
+            btnLoadReservations.Size = new Size(155, 60);
+            btnLoadReservations.TabIndex = 13;
+            btnLoadReservations.Text = "Wczytaj rezerwacje";
+            btnLoadReservations.UseVisualStyleBackColor = true;
+            btnLoadReservations.Click += btnLoadReservations_Click;
+            // 
+            // txtSearchReservation
+            // 
+            txtSearchReservation.Location = new Point(315, 6);
+            txtSearchReservation.Name = "txtSearchReservation";
+            txtSearchReservation.Size = new Size(155, 27);
+            txtSearchReservation.TabIndex = 12;
+            // 
+            // btnSearchReservation
+            // 
+            btnSearchReservation.Location = new Point(315, 39);
+            btnSearchReservation.Name = "btnSearchReservation";
+            btnSearchReservation.Size = new Size(155, 60);
+            btnSearchReservation.TabIndex = 11;
+            btnSearchReservation.Text = "Wyszkuj rezerwację";
+            btnSearchReservation.UseVisualStyleBackColor = true;
+            btnSearchReservation.Click += btnSearchReservation_Click;
+            // 
+            // label24
+            // 
+            label24.AutoSize = true;
+            label24.Location = new Point(6, 287);
+            label24.Name = "label24";
+            label24.Size = new Size(246, 20);
+            label24.TabIndex = 10;
+            label24.Text = "Automatyczie ( ew- zmiana ręczna )";
+            // 
+            // dtpResCreatedAt
+            // 
+            dtpResCreatedAt.Location = new Point(6, 310);
+            dtpResCreatedAt.Name = "dtpResCreatedAt";
+            dtpResCreatedAt.Size = new Size(280, 27);
+            dtpResCreatedAt.TabIndex = 9;
+            // 
+            // label23
+            // 
+            label23.AutoSize = true;
+            label23.Location = new Point(6, 212);
+            label23.Name = "label23";
+            label23.Size = new Size(49, 20);
+            label23.TabIndex = 8;
+            label23.Text = "Status";
+            // 
+            // cmbResStatus
+            // 
+            cmbResStatus.FormattingEnabled = true;
+            cmbResStatus.Location = new Point(6, 235);
+            cmbResStatus.Name = "cmbResStatus";
+            cmbResStatus.Size = new Size(280, 28);
+            cmbResStatus.TabIndex = 7;
+            // 
+            // label22
+            // 
+            label22.AutoSize = true;
+            label22.Location = new Point(6, 142);
+            label22.Name = "label22";
+            label22.Size = new Size(110, 20);
+            label22.TabIndex = 6;
+            label22.Text = "Osoba / Paczka";
+            // 
+            // cmbServiceType
+            // 
+            cmbServiceType.FormattingEnabled = true;
+            cmbServiceType.Location = new Point(6, 165);
+            cmbServiceType.Name = "cmbServiceType";
+            cmbServiceType.Size = new Size(280, 28);
+            cmbServiceType.TabIndex = 5;
+            // 
+            // label21
+            // 
+            label21.AutoSize = true;
+            label21.Location = new Point(6, 74);
+            label21.Name = "label21";
+            label21.Size = new Size(88, 20);
+            label21.TabIndex = 4;
+            label21.Text = "Wybór trasy";
+            // 
+            // cmbResRoute
+            // 
+            cmbResRoute.FormattingEnabled = true;
+            cmbResRoute.Location = new Point(6, 97);
+            cmbResRoute.Name = "cmbResRoute";
+            cmbResRoute.Size = new Size(280, 28);
+            cmbResRoute.TabIndex = 3;
+            // 
+            // label20
+            // 
+            label20.AutoSize = true;
+            label20.Location = new Point(6, 6);
+            label20.Name = "label20";
+            label20.Size = new Size(101, 20);
+            label20.TabIndex = 2;
+            label20.Text = "Wybór klienta";
+            // 
+            // cmbResClient
+            // 
+            cmbResClient.FormattingEnabled = true;
+            cmbResClient.Location = new Point(6, 29);
+            cmbResClient.Name = "cmbResClient";
+            cmbResClient.Size = new Size(280, 28);
+            cmbResClient.TabIndex = 1;
+            // 
+            // dgvReservations
+            // 
+            dgvReservations.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dgvReservations.Location = new Point(476, 6);
+            dgvReservations.Name = "dgvReservations";
+            dgvReservations.RowHeadersWidth = 51;
+            dgvReservations.Size = new Size(642, 498);
+            dgvReservations.TabIndex = 0;
+            dgvReservations.CellClick += dgvReservations_CellClick;
             // 
             // tabPage3
             // 
@@ -815,159 +951,34 @@
             tabControl1.Size = new Size(1132, 543);
             tabControl1.TabIndex = 3;
             // 
-            // dgvReservations
+            // btnTestDb
             // 
-            dgvReservations.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dgvReservations.Location = new Point(476, 6);
-            dgvReservations.Name = "dgvReservations";
-            dgvReservations.RowHeadersWidth = 51;
-            dgvReservations.Size = new Size(554, 498);
-            dgvReservations.TabIndex = 0;
+            btnTestDb.Location = new Point(15, 15);
+            btnTestDb.Name = "btnTestDb";
+            btnTestDb.Size = new Size(366, 29);
+            btnTestDb.TabIndex = 0;
+            btnTestDb.Text = "Test połączenia z bazą";
+            btnTestDb.UseVisualStyleBackColor = true;
+            btnTestDb.Click += btnTestDb_Click;
             // 
-            // cmbResClient
+            // lblDbStatus
             // 
-            cmbResClient.FormattingEnabled = true;
-            cmbResClient.Location = new Point(6, 29);
-            cmbResClient.Name = "cmbResClient";
-            cmbResClient.Size = new Size(280, 28);
-            cmbResClient.TabIndex = 1;
+            lblDbStatus.AutoSize = true;
+            lblDbStatus.Location = new Point(15, 58);
+            lblDbStatus.Name = "lblDbStatus";
+            lblDbStatus.Size = new Size(71, 20);
+            lblDbStatus.TabIndex = 1;
+            lblDbStatus.Text = "Status: —";
             // 
-            // label20
+            // txtDbDetails
             // 
-            label20.AutoSize = true;
-            label20.Location = new Point(6, 6);
-            label20.Name = "label20";
-            label20.Size = new Size(101, 20);
-            label20.TabIndex = 2;
-            label20.Text = "Wybór klienta";
-            // 
-            // label21
-            // 
-            label21.AutoSize = true;
-            label21.Location = new Point(6, 74);
-            label21.Name = "label21";
-            label21.Size = new Size(88, 20);
-            label21.TabIndex = 4;
-            label21.Text = "Wybór trasy";
-            // 
-            // cmbResRoute
-            // 
-            cmbResRoute.FormattingEnabled = true;
-            cmbResRoute.Location = new Point(6, 97);
-            cmbResRoute.Name = "cmbResRoute";
-            cmbResRoute.Size = new Size(280, 28);
-            cmbResRoute.TabIndex = 3;
-            // 
-            // label22
-            // 
-            label22.AutoSize = true;
-            label22.Location = new Point(6, 142);
-            label22.Name = "label22";
-            label22.Size = new Size(110, 20);
-            label22.TabIndex = 6;
-            label22.Text = "Osoba / Paczka";
-            // 
-            // cmbServiceType
-            // 
-            cmbServiceType.FormattingEnabled = true;
-            cmbServiceType.Location = new Point(6, 165);
-            cmbServiceType.Name = "cmbServiceType";
-            cmbServiceType.Size = new Size(280, 28);
-            cmbServiceType.TabIndex = 5;
-            // 
-            // label23
-            // 
-            label23.AutoSize = true;
-            label23.Location = new Point(6, 212);
-            label23.Name = "label23";
-            label23.Size = new Size(49, 20);
-            label23.TabIndex = 8;
-            label23.Text = "Status";
-            // 
-            // cmbResStatus
-            // 
-            cmbResStatus.FormattingEnabled = true;
-            cmbResStatus.Location = new Point(6, 235);
-            cmbResStatus.Name = "cmbResStatus";
-            cmbResStatus.Size = new Size(280, 28);
-            cmbResStatus.TabIndex = 7;
-            // 
-            // dtpResCreatedAt
-            // 
-            dtpResCreatedAt.Location = new Point(6, 310);
-            dtpResCreatedAt.Name = "dtpResCreatedAt";
-            dtpResCreatedAt.Size = new Size(280, 27);
-            dtpResCreatedAt.TabIndex = 9;
-            // 
-            // label24
-            // 
-            label24.AutoSize = true;
-            label24.Location = new Point(6, 287);
-            label24.Name = "label24";
-            label24.Size = new Size(246, 20);
-            label24.TabIndex = 10;
-            label24.Text = "Automatyczie ( ew- zmiana ręczna )";
-            // 
-            // btnSearchReservation
-            // 
-            btnSearchReservation.Location = new Point(315, 39);
-            btnSearchReservation.Name = "btnSearchReservation";
-            btnSearchReservation.Size = new Size(155, 60);
-            btnSearchReservation.TabIndex = 11;
-            btnSearchReservation.Text = "Wyszkuj rezerwację";
-            btnSearchReservation.UseVisualStyleBackColor = true;
-            // 
-            // textBox1
-            // 
-            textBox1.Location = new Point(315, 6);
-            textBox1.Name = "textBox1";
-            textBox1.Size = new Size(155, 27);
-            textBox1.TabIndex = 12;
-            // 
-            // btnLoadReservations
-            // 
-            btnLoadReservations.Location = new Point(315, 105);
-            btnLoadReservations.Name = "btnLoadReservations";
-            btnLoadReservations.Size = new Size(155, 60);
-            btnLoadReservations.TabIndex = 13;
-            btnLoadReservations.Text = "Wczytaj rezerwacje";
-            btnLoadReservations.UseVisualStyleBackColor = true;
-            // 
-            // btnAddReservation
-            // 
-            btnAddReservation.Location = new Point(6, 343);
-            btnAddReservation.Name = "btnAddReservation";
-            btnAddReservation.Size = new Size(139, 29);
-            btnAddReservation.TabIndex = 14;
-            btnAddReservation.Text = "Dodaj rezerwację";
-            btnAddReservation.UseVisualStyleBackColor = true;
-            // 
-            // btnUpdateReservation
-            // 
-            btnUpdateReservation.Location = new Point(147, 343);
-            btnUpdateReservation.Name = "btnUpdateReservation";
-            btnUpdateReservation.Size = new Size(139, 29);
-            btnUpdateReservation.TabIndex = 15;
-            btnUpdateReservation.Text = "Zapisz rezerwację";
-            btnUpdateReservation.UseVisualStyleBackColor = true;
-            // 
-            // btnDeleteReservation
-            // 
-            btnDeleteReservation.Location = new Point(6, 378);
-            btnDeleteReservation.Name = "btnDeleteReservation";
-            btnDeleteReservation.Size = new Size(280, 29);
-            btnDeleteReservation.TabIndex = 16;
-            btnDeleteReservation.Text = "Usuń rezerwację";
-            btnDeleteReservation.UseVisualStyleBackColor = true;
-            // 
-            // btnClearReservationForm
-            // 
-            btnClearReservationForm.Location = new Point(6, 413);
-            btnClearReservationForm.Name = "btnClearReservationForm";
-            btnClearReservationForm.Size = new Size(280, 29);
-            btnClearReservationForm.TabIndex = 17;
-            btnClearReservationForm.Text = "Wyczyść pola";
-            btnClearReservationForm.UseVisualStyleBackColor = true;
+            txtDbDetails.Location = new Point(15, 91);
+            txtDbDetails.Multiline = true;
+            txtDbDetails.Name = "txtDbDetails";
+            txtDbDetails.ReadOnly = true;
+            txtDbDetails.ScrollBars = ScrollBars.Vertical;
+            txtDbDetails.Size = new Size(366, 105);
+            txtDbDetails.TabIndex = 2;
             // 
             // MainForm
             // 
@@ -979,8 +990,11 @@
             Text = "Panel Admina - Zarządzanie transportem";
             tabPage9.ResumeLayout(false);
             tabPage9.PerformLayout();
+            tabPage5.ResumeLayout(false);
+            tabPage5.PerformLayout();
             tabPage4.ResumeLayout(false);
             tabPage4.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)dgvReservations).EndInit();
             tabPage3.ResumeLayout(false);
             tabPage3.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)dgvRoutes).EndInit();
@@ -991,19 +1005,12 @@
             tabPage1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)dgvClients).EndInit();
             tabControl1.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)dgvReservations).EndInit();
             ResumeLayout(false);
         }
 
         #endregion
 
         private TabPage tabPage9;
-        private Label db_connect_info;
-        private Label label4;
-        private Label label3;
-        private Label label2;
-        private Label label1;
-        private Button btnTestDb;
         private TabPage tabPage5;
         private TabPage tabPage4;
         private TabPage tabPage3;
@@ -1081,7 +1088,13 @@
         private Button btnUpdateReservation;
         private Button btnAddReservation;
         private Button btnLoadReservations;
-        private TextBox textBox1;
+        private TextBox txtSearchReservation;
         private Button btnSearchReservation;
+        private Button btnExportCsv;
+        private DateTimePicker dtpReportMonth;
+        private Label label25;
+        private TextBox txtDbDetails;
+        private Label lblDbStatus;
+        private Button btnTestDb;
     }
 }
