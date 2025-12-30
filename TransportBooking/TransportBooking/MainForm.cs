@@ -4,9 +4,6 @@ using TransportBooking.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using TransportBooking.Domain.Entities;
 
-
-
-
 public partial class MainForm : Form
 {
     public MainForm()
@@ -83,8 +80,12 @@ public partial class MainForm : Form
             .ToList();
     }
 
+
+
     // Przechowuje ID aktualnie zaznaczonego klienta w tabeli
     private long? _selectedClientId = null;
+
+
 
     // Obsługuje przycisk wczytujący wszystkich klientów z bazy
     private void btnLoadClients_Click(object sender, EventArgs e)
@@ -98,6 +99,8 @@ public partial class MainForm : Form
             MessageBox.Show("Błąd: " + ex.Message);
         }
     }
+
+
 
     // Dodaje nowego klienta do bazy danych po poprawnej walidacji danych
     private void btnAddClient_Click(object sender, EventArgs e)
@@ -145,6 +148,8 @@ public partial class MainForm : Form
         }
     }
 
+
+
     // Wyszukuje klientów na podstawie wpisanego tekstu (imię, nazwisko, email itp.)
     private void btnSearchClient_Click(object sender, EventArgs e)
     {
@@ -157,6 +162,8 @@ public partial class MainForm : Form
             MessageBox.Show("Błąd: " + ex.Message);
         }
     }
+
+
 
     // Usuwa zaznaczonego klienta z bazy danych (jeśli nie ma rezerwacji)
     private void btnDeleteClient_Click(object sender, EventArgs e)
@@ -216,6 +223,8 @@ public partial class MainForm : Form
         }
     }
 
+
+
     // Aktualizuje dane zaznaczonego klienta w bazie danych
     private void btnUpdateClient_Click(object sender, EventArgs e)
     {
@@ -271,6 +280,8 @@ public partial class MainForm : Form
         }
     }
 
+
+
     // Czyści formularz klienta oraz resetuje zaznaczenie w tabeli
     private void btnClearClientForm_Click(object sender, EventArgs e)
     {
@@ -286,6 +297,8 @@ public partial class MainForm : Form
 
         dgvClients.ClearSelection();
     }
+
+
 
     // Obsługuje kliknięcie w tabeli klientów i uzupełnia formularz danymi klienta
     private void dgvClients_CellClick(object sender, DataGridViewCellEventArgs e)
@@ -309,6 +322,8 @@ public partial class MainForm : Form
             MessageBox.Show("Błąd: " + ex.Message);
         }
     }
+
+
 
     // Waliduje dane klienta (wspólna metoda dla dodawania i edycji)
     private bool ValidateClientInputs(out string firstName, out string lastName,
@@ -375,4 +390,282 @@ public partial class MainForm : Form
     }
 
 
+
+
+
+
+    /* =========================================================
+   SEKCJA: POJAZDY
+   ---------------------------------------------------------
+   Sekcja odpowiedzialna za zarządzanie pojazdami wykorzystywanymi
+   w systemie rezerwacji transportu. Umożliwia:
+   - wyświetlanie listy pojazdów z bazy danych,
+   - wyszukiwanie pojazdów po numerze rejestracyjnym lub modelu,
+   - dodawanie nowych pojazdów z walidacją danych,
+   - edycję danych istniejących pojazdów,
+   - bezpieczne usuwanie pojazdów (z blokadą, jeśli pojazd
+     jest przypisany do tras).
+   
+   Dane prezentowane są w kontrolce DataGridView, a operacje
+   CRUD realizowane są z wykorzystaniem Entity Framework Core
+   oraz bazy danych PostgreSQL.
+   ========================================================= */
+    // Przechowuje ID aktualnie zaznaczonego pojazdu w tabeli
+    private long? _selectedVehicleId = null;
+
+
+
+    // Ładuje listę pojazdów z bazy danych (opcjonalnie z filtrem wyszukiwania)
+    private void LoadVehicles(string? filter = null)
+    {
+        using var db = new AppDbContext();
+
+        var q = db.Vehicles.AsNoTracking().AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(filter))
+        {
+            filter = filter.Trim().ToLower();
+
+            q = q.Where(v =>
+                v.PlateNumber.ToLower().Contains(filter) ||
+                v.Model.ToLower().Contains(filter)
+            );
+        }
+
+        dgvVehicles.DataSource = q
+            .OrderByDescending(v => v.VehicleId)
+            .ToList();
+    }
+
+
+
+    // Obsługuje przycisk wczytujący wszystkie pojazdy z bazy danych
+    private void btnLoadVehicles_Click_1(object sender, EventArgs e)
+    {
+            MessageBox.Show("Klik działa");
+
+
+            try
+            {
+                LoadVehicles();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Błąd: " + ex.Message);
+            }
+        }
+
+
+
+    // Wyszukuje pojazdy na podstawie numeru rejestracyjnego lub modelu
+    private void btnSearchVehicle_Click(object sender, EventArgs e)
+    {
+        try
+        {
+            LoadVehicles(txtSearchVehicle.Text);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show("Błąd: " + ex.Message);
+        }
+    }
+
+
+
+    // Obsługuje kliknięcie w tabeli pojazdów i uzupełnia formularz danymi pojazdu
+    private void dgvVehicles_CellClick(object sender, DataGridViewCellEventArgs e)
+    {
+        if (dgvVehicles.CurrentRow == null) return;
+
+        _selectedVehicleId = Convert.ToInt64(dgvVehicles.CurrentRow.Cells["VehicleId"].Value);
+
+        txtPlateNumber.Text = dgvVehicles.CurrentRow.Cells["PlateNumber"].Value?.ToString() ?? "";
+        txtVehicleModel.Text = dgvVehicles.CurrentRow.Cells["Model"].Value?.ToString() ?? "";
+        txtSeats.Text = dgvVehicles.CurrentRow.Cells["Seats"].Value?.ToString() ?? "";
+        chkVehicleActive.Checked = Convert.ToBoolean(dgvVehicles.CurrentRow.Cells["Active"].Value);
+    }
+
+
+
+    // Waliduje dane pojazdu (numer rejestracyjny, model, liczba miejsc, status)
+    private bool ValidateVehicleInputs(out string plate, out string model, out int seats, out bool active)
+    {
+        plate = txtPlateNumber.Text.Trim();
+        model = txtVehicleModel.Text.Trim();
+        active = chkVehicleActive.Checked;
+
+        if (plate.Length < 3)
+        {
+            MessageBox.Show("Numer rejestracyjny jest za krótki.");
+            seats = 0;
+            return false;
+        }
+
+        if (model.Length < 2)
+        {
+            MessageBox.Show("Model pojazdu jest za krótki.");
+            seats = 0;
+            return false;
+        }
+
+        if (!int.TryParse(txtSeats.Text.Trim(), out seats) || seats <= 0)
+        {
+            MessageBox.Show("Liczba miejsc musi być liczbą większą od 0.");
+            return false;
+        }
+
+        return true;
+    }
+
+
+
+    // Dodaje nowy pojazd do bazy danych po poprawnej walidacji danych
+    private void btnAddVehicle_Click(object sender, EventArgs e)
+    {
+        try
+        {
+            if (!ValidateVehicleInputs(out var plate, out var model, out var seats, out var active))
+                return;
+
+            using var db = new AppDbContext();
+
+            bool exists = db.Vehicles.Any(v => v.PlateNumber == plate);
+            if (exists)
+            {
+                MessageBox.Show("Pojazd z takim numerem rejestracyjnym już istnieje.");
+                return;
+            }
+
+            var vehicle = new Vehicle
+            {
+                PlateNumber = plate,
+                Model = model,
+                Seats = seats,
+                Active = active
+            };
+
+            db.Vehicles.Add(vehicle);
+            db.SaveChanges();
+
+            MessageBox.Show("Dodano pojazd ✅");
+            btnClearVehicleForm_Click(sender, e);
+            LoadVehicles(txtSearchVehicle.Text);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show("Błąd: " + ex.Message);
+        }
+    }
+
+
+
+    // Aktualizuje dane zaznaczonego pojazdu w bazie danych
+    private void btnUpdateVehicle_Click(object sender, EventArgs e)
+    {
+        try
+        {
+            if (_selectedVehicleId is null)
+            {
+                MessageBox.Show("Zaznacz pojazd w tabeli.");
+                return;
+            }
+
+            if (!ValidateVehicleInputs(out var plate, out var model, out var seats, out var active))
+                return;
+
+            using var db = new AppDbContext();
+
+            bool exists = db.Vehicles.Any(v =>
+                v.PlateNumber == plate && v.VehicleId != _selectedVehicleId.Value);
+
+            if (exists)
+            {
+                MessageBox.Show("Inny pojazd ma już taki numer rejestracyjny.");
+                return;
+            }
+
+            var vehicle = db.Vehicles.FirstOrDefault(v => v.VehicleId == _selectedVehicleId.Value);
+            if (vehicle == null)
+            {
+                MessageBox.Show("Pojazd nie istnieje.");
+                LoadVehicles();
+                return;
+            }
+
+            vehicle.PlateNumber = plate;
+            vehicle.Model = model;
+            vehicle.Seats = seats;
+            vehicle.Active = active;
+
+            db.SaveChanges();
+
+            MessageBox.Show("Zapisano zmiany ✅");
+            LoadVehicles(txtSearchVehicle.Text);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show("Błąd: " + ex.Message);
+        }
+    }
+
+
+
+    // Usuwa zaznaczony pojazd z bazy danych (jeśli nie jest przypisany do tras)
+    private void btnDeleteVehicle_Click(object sender, EventArgs e)
+    {
+        try
+        {
+            if (_selectedVehicleId is null)
+            {
+                MessageBox.Show("Zaznacz pojazd w tabeli.");
+                return;
+            }
+
+            using var db = new AppDbContext();
+
+            bool inRoutes = db.Routes.Any(r => r.VehicleId == _selectedVehicleId.Value);
+            if (inRoutes)
+            {
+                MessageBox.Show("Nie można usunąć pojazdu — jest przypisany do tras.");
+                return;
+            }
+
+            var confirm = MessageBox.Show(
+                "Czy na pewno usunąć pojazd?",
+                "Potwierdzenie",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Warning);
+
+            if (confirm != DialogResult.Yes) return;
+
+            var vehicle = db.Vehicles.First(v => v.VehicleId == _selectedVehicleId.Value);
+            db.Vehicles.Remove(vehicle);
+            db.SaveChanges();
+
+            MessageBox.Show("Usunięto pojazd ✅");
+            btnClearVehicleForm_Click(sender, e);
+            LoadVehicles();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show("Błąd: " + ex.Message);
+        }
+    }
+
+
+
+    // Czyści formularz pojazdu oraz resetuje zaznaczenie w tabeli
+    private void btnClearVehicleForm_Click(object sender, EventArgs e)
+    {
+        _selectedVehicleId = null;
+
+        txtPlateNumber.Clear();
+        txtVehicleModel.Clear();
+        txtSeats.Clear();
+        chkVehicleActive.Checked = false;
+
+        dgvVehicles.ClearSelection();
+    }
+
+    
 }
