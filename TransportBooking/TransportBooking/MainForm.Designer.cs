@@ -96,7 +96,26 @@
             label6 = new Label();
             label5 = new Label();
             tabControl1 = new TabControl();
+            dgvReservations = new DataGridView();
+            cmbResClient = new ComboBox();
+            label20 = new Label();
+            label21 = new Label();
+            cmbResRoute = new ComboBox();
+            label22 = new Label();
+            cmbServiceType = new ComboBox();
+            label23 = new Label();
+            cmbResStatus = new ComboBox();
+            dtpResCreatedAt = new DateTimePicker();
+            label24 = new Label();
+            btnSearchReservation = new Button();
+            textBox1 = new TextBox();
+            btnLoadReservations = new Button();
+            btnAddReservation = new Button();
+            btnUpdateReservation = new Button();
+            btnDeleteReservation = new Button();
+            btnClearReservationForm = new Button();
             tabPage9.SuspendLayout();
+            tabPage4.SuspendLayout();
             tabPage3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dgvRoutes).BeginInit();
             tabVehicles.SuspendLayout();
@@ -104,6 +123,7 @@
             tabPage1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dgvClients).BeginInit();
             tabControl1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)dgvReservations).BeginInit();
             SuspendLayout();
             // 
             // tabPage9
@@ -117,7 +137,7 @@
             tabPage9.Location = new Point(4, 29);
             tabPage9.Name = "tabPage9";
             tabPage9.Padding = new Padding(3);
-            tabPage9.Size = new Size(1106, 510);
+            tabPage9.Size = new Size(1124, 510);
             tabPage9.TabIndex = 8;
             tabPage9.Text = "Test połączenia z bazą";
             tabPage9.UseVisualStyleBackColor = true;
@@ -182,17 +202,35 @@
             tabPage5.Location = new Point(4, 29);
             tabPage5.Name = "tabPage5";
             tabPage5.Padding = new Padding(3);
-            tabPage5.Size = new Size(1106, 510);
+            tabPage5.Size = new Size(1124, 510);
             tabPage5.TabIndex = 4;
             tabPage5.Text = "Raport CSV";
             tabPage5.UseVisualStyleBackColor = true;
             // 
             // tabPage4
             // 
+            tabPage4.Controls.Add(btnClearReservationForm);
+            tabPage4.Controls.Add(btnDeleteReservation);
+            tabPage4.Controls.Add(btnUpdateReservation);
+            tabPage4.Controls.Add(btnAddReservation);
+            tabPage4.Controls.Add(btnLoadReservations);
+            tabPage4.Controls.Add(textBox1);
+            tabPage4.Controls.Add(btnSearchReservation);
+            tabPage4.Controls.Add(label24);
+            tabPage4.Controls.Add(dtpResCreatedAt);
+            tabPage4.Controls.Add(label23);
+            tabPage4.Controls.Add(cmbResStatus);
+            tabPage4.Controls.Add(label22);
+            tabPage4.Controls.Add(cmbServiceType);
+            tabPage4.Controls.Add(label21);
+            tabPage4.Controls.Add(cmbResRoute);
+            tabPage4.Controls.Add(label20);
+            tabPage4.Controls.Add(cmbResClient);
+            tabPage4.Controls.Add(dgvReservations);
             tabPage4.Location = new Point(4, 29);
             tabPage4.Name = "tabPage4";
             tabPage4.Padding = new Padding(3);
-            tabPage4.Size = new Size(1106, 510);
+            tabPage4.Size = new Size(1124, 510);
             tabPage4.TabIndex = 3;
             tabPage4.Text = "Rezerwacje";
             tabPage4.UseVisualStyleBackColor = true;
@@ -403,7 +441,7 @@
             tabVehicles.Location = new Point(4, 29);
             tabVehicles.Name = "tabVehicles";
             tabVehicles.Padding = new Padding(3);
-            tabVehicles.Size = new Size(1106, 510);
+            tabVehicles.Size = new Size(1124, 510);
             tabVehicles.TabIndex = 1;
             tabVehicles.Text = "Pojazdy";
             tabVehicles.UseVisualStyleBackColor = true;
@@ -569,7 +607,7 @@
             tabPage1.Location = new Point(4, 29);
             tabPage1.Name = "tabPage1";
             tabPage1.Padding = new Padding(3);
-            tabPage1.Size = new Size(1106, 510);
+            tabPage1.Size = new Size(1124, 510);
             tabPage1.TabIndex = 0;
             tabPage1.Text = "Klienci";
             tabPage1.UseVisualStyleBackColor = true;
@@ -777,6 +815,160 @@
             tabControl1.Size = new Size(1132, 543);
             tabControl1.TabIndex = 3;
             // 
+            // dgvReservations
+            // 
+            dgvReservations.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dgvReservations.Location = new Point(476, 6);
+            dgvReservations.Name = "dgvReservations";
+            dgvReservations.RowHeadersWidth = 51;
+            dgvReservations.Size = new Size(554, 498);
+            dgvReservations.TabIndex = 0;
+            // 
+            // cmbResClient
+            // 
+            cmbResClient.FormattingEnabled = true;
+            cmbResClient.Location = new Point(6, 29);
+            cmbResClient.Name = "cmbResClient";
+            cmbResClient.Size = new Size(280, 28);
+            cmbResClient.TabIndex = 1;
+            // 
+            // label20
+            // 
+            label20.AutoSize = true;
+            label20.Location = new Point(6, 6);
+            label20.Name = "label20";
+            label20.Size = new Size(101, 20);
+            label20.TabIndex = 2;
+            label20.Text = "Wybór klienta";
+            // 
+            // label21
+            // 
+            label21.AutoSize = true;
+            label21.Location = new Point(6, 74);
+            label21.Name = "label21";
+            label21.Size = new Size(88, 20);
+            label21.TabIndex = 4;
+            label21.Text = "Wybór trasy";
+            // 
+            // cmbResRoute
+            // 
+            cmbResRoute.FormattingEnabled = true;
+            cmbResRoute.Location = new Point(6, 97);
+            cmbResRoute.Name = "cmbResRoute";
+            cmbResRoute.Size = new Size(280, 28);
+            cmbResRoute.TabIndex = 3;
+            // 
+            // label22
+            // 
+            label22.AutoSize = true;
+            label22.Location = new Point(6, 142);
+            label22.Name = "label22";
+            label22.Size = new Size(110, 20);
+            label22.TabIndex = 6;
+            label22.Text = "Osoba / Paczka";
+            // 
+            // cmbServiceType
+            // 
+            cmbServiceType.FormattingEnabled = true;
+            cmbServiceType.Location = new Point(6, 165);
+            cmbServiceType.Name = "cmbServiceType";
+            cmbServiceType.Size = new Size(280, 28);
+            cmbServiceType.TabIndex = 5;
+            // 
+            // label23
+            // 
+            label23.AutoSize = true;
+            label23.Location = new Point(6, 212);
+            label23.Name = "label23";
+            label23.Size = new Size(49, 20);
+            label23.TabIndex = 8;
+            label23.Text = "Status";
+            // 
+            // cmbResStatus
+            // 
+            cmbResStatus.FormattingEnabled = true;
+            cmbResStatus.Location = new Point(6, 235);
+            cmbResStatus.Name = "cmbResStatus";
+            cmbResStatus.Size = new Size(280, 28);
+            cmbResStatus.TabIndex = 7;
+            // 
+            // dtpResCreatedAt
+            // 
+            dtpResCreatedAt.Location = new Point(6, 310);
+            dtpResCreatedAt.Name = "dtpResCreatedAt";
+            dtpResCreatedAt.Size = new Size(280, 27);
+            dtpResCreatedAt.TabIndex = 9;
+            // 
+            // label24
+            // 
+            label24.AutoSize = true;
+            label24.Location = new Point(6, 287);
+            label24.Name = "label24";
+            label24.Size = new Size(246, 20);
+            label24.TabIndex = 10;
+            label24.Text = "Automatyczie ( ew- zmiana ręczna )";
+            // 
+            // btnSearchReservation
+            // 
+            btnSearchReservation.Location = new Point(315, 39);
+            btnSearchReservation.Name = "btnSearchReservation";
+            btnSearchReservation.Size = new Size(155, 60);
+            btnSearchReservation.TabIndex = 11;
+            btnSearchReservation.Text = "Wyszkuj rezerwację";
+            btnSearchReservation.UseVisualStyleBackColor = true;
+            // 
+            // textBox1
+            // 
+            textBox1.Location = new Point(315, 6);
+            textBox1.Name = "textBox1";
+            textBox1.Size = new Size(155, 27);
+            textBox1.TabIndex = 12;
+            // 
+            // btnLoadReservations
+            // 
+            btnLoadReservations.Location = new Point(315, 105);
+            btnLoadReservations.Name = "btnLoadReservations";
+            btnLoadReservations.Size = new Size(155, 60);
+            btnLoadReservations.TabIndex = 13;
+            btnLoadReservations.Text = "Wczytaj rezerwacje";
+            btnLoadReservations.UseVisualStyleBackColor = true;
+            // 
+            // btnAddReservation
+            // 
+            btnAddReservation.Location = new Point(6, 343);
+            btnAddReservation.Name = "btnAddReservation";
+            btnAddReservation.Size = new Size(139, 29);
+            btnAddReservation.TabIndex = 14;
+            btnAddReservation.Text = "Dodaj rezerwację";
+            btnAddReservation.UseVisualStyleBackColor = true;
+            // 
+            // btnUpdateReservation
+            // 
+            btnUpdateReservation.Location = new Point(147, 343);
+            btnUpdateReservation.Name = "btnUpdateReservation";
+            btnUpdateReservation.Size = new Size(139, 29);
+            btnUpdateReservation.TabIndex = 15;
+            btnUpdateReservation.Text = "Zapisz rezerwację";
+            btnUpdateReservation.UseVisualStyleBackColor = true;
+            // 
+            // btnDeleteReservation
+            // 
+            btnDeleteReservation.Location = new Point(6, 378);
+            btnDeleteReservation.Name = "btnDeleteReservation";
+            btnDeleteReservation.Size = new Size(280, 29);
+            btnDeleteReservation.TabIndex = 16;
+            btnDeleteReservation.Text = "Usuń rezerwację";
+            btnDeleteReservation.UseVisualStyleBackColor = true;
+            // 
+            // btnClearReservationForm
+            // 
+            btnClearReservationForm.Location = new Point(6, 413);
+            btnClearReservationForm.Name = "btnClearReservationForm";
+            btnClearReservationForm.Size = new Size(280, 29);
+            btnClearReservationForm.TabIndex = 17;
+            btnClearReservationForm.Text = "Wyczyść pola";
+            btnClearReservationForm.UseVisualStyleBackColor = true;
+            // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
@@ -787,6 +979,8 @@
             Text = "Panel Admina - Zarządzanie transportem";
             tabPage9.ResumeLayout(false);
             tabPage9.PerformLayout();
+            tabPage4.ResumeLayout(false);
+            tabPage4.PerformLayout();
             tabPage3.ResumeLayout(false);
             tabPage3.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)dgvRoutes).EndInit();
@@ -797,6 +991,7 @@
             tabPage1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)dgvClients).EndInit();
             tabControl1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)dgvReservations).EndInit();
             ResumeLayout(false);
         }
 
@@ -870,5 +1065,23 @@
         private ComboBox cmbRouteVehicle;
         private DataGridView dgvRoutes;
         private Label label19;
+        private Label label24;
+        private DateTimePicker dtpResCreatedAt;
+        private Label label23;
+        private ComboBox cmbResStatus;
+        private Label label22;
+        private ComboBox cmbServiceType;
+        private Label label21;
+        private ComboBox cmbResRoute;
+        private Label label20;
+        private ComboBox cmbResClient;
+        private DataGridView dgvReservations;
+        private Button btnClearReservationForm;
+        private Button btnDeleteReservation;
+        private Button btnUpdateReservation;
+        private Button btnAddReservation;
+        private Button btnLoadReservations;
+        private TextBox textBox1;
+        private Button btnSearchReservation;
     }
 }
