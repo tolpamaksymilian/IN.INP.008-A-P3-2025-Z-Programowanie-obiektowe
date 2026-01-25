@@ -7,27 +7,8 @@ using TransportBooking.Domain.Entities;
 using System.Text;
 
 
-public partial class MainForm : AppDbContext
+public partial class MainForm : Form
 {
-
-    /// <summary>
-    /// PROJEKT PROGRAMOWANIE OBIEKTOWE C#
-    /// Temat: System rezerwacji transportu i paczek
-    ///
-    /// Aplikacja desktopowa (Windows Forms) współpracująca z bazą danych PostgreSQL.
-    /// Umożliwia zarządzanie klientami, pojazdami, trasami i rezerwacjami (CRUD),
-    /// posiada walidację danych, obsługę wyjątków oraz eksport raportu miesięcznego do CSV.
-    /// </summary>
-    /// <remarks>
-    /// Autor: Maksymilian Tołpa
-    /// Nr albumu: 71368
-    /// wersja: 1.0.0
-    /// Prowadzący: mgr inż. Ewa Żesławska
-    /// Rok: 2026
-    ///
-    /// Technologie: C#, .NET 8, Windows Forms, PostgreSQL, Entity Framework Core (Npgsql)
-    /// </remarks>
-
     public MainForm()
     {
         InitializeComponent();
@@ -87,13 +68,17 @@ public partial class MainForm : AppDbContext
             );
         }
 
-        dgvClients.DataSource = q.OrderByDescending(c => c.ClientId).ToList();
+        dgvClients.DataSource = q
+            .OrderByDescending(c => c.ClientId)
+            .ToList();
     }
 
 
 
     // Przechowuje ID aktualnie zaznaczonego klienta w tabeli
     private long? _selectedClientId = null;
+
+
 
     // Obsługuje przycisk wczytujący wszystkich klientów z bazy
     private void btnLoadClients_Click(object sender, EventArgs e)
@@ -115,10 +100,9 @@ public partial class MainForm : AppDbContext
     {
         try
         {
-            if (!ValidateClientInputs(out var firstName, out var lastName, out var email, out var phone, out var city, out var address, out var postalCode))
-            {
+            if (!ValidateClientInputs(out var firstName, out var lastName,
+                    out var email, out var phone, out var city, out var address, out var postalCode))
                 return;
-            }
 
             using var db = new AppDbContext();
 
@@ -157,6 +141,8 @@ public partial class MainForm : AppDbContext
         }
     }
 
+
+
     // Wyszukuje klientów na podstawie wpisanego tekstu (imię, nazwisko, email itp.)
     private void btnSearchClient_Click(object sender, EventArgs e)
     {
@@ -169,6 +155,8 @@ public partial class MainForm : AppDbContext
             MessageBox.Show("Błąd: " + ex.Message);
         }
     }
+
+
 
     // Usuwa zaznaczonego klienta z bazy danych (jeśli nie ma rezerwacji)
     private void btnDeleteClient_Click(object sender, EventArgs e)
@@ -228,6 +216,8 @@ public partial class MainForm : AppDbContext
         }
     }
 
+
+
     // Aktualizuje dane zaznaczonego klienta w bazie danych
     private void btnUpdateClient_Click(object sender, EventArgs e)
     {
@@ -283,6 +273,8 @@ public partial class MainForm : AppDbContext
         }
     }
 
+
+
     // Czyści formularz klienta oraz resetuje zaznaczenie w tabeli
     private void btnClearClientForm_Click(object sender, EventArgs e)
     {
@@ -298,6 +290,8 @@ public partial class MainForm : AppDbContext
 
         dgvClients.ClearSelection();
     }
+
+
 
     // Obsługuje kliknięcie w tabeli klientów i uzupełnia formularz danymi klienta
     private void dgvClients_CellClick(object sender, DataGridViewCellEventArgs e)
@@ -321,6 +315,8 @@ public partial class MainForm : AppDbContext
             MessageBox.Show("Błąd: " + ex.Message);
         }
     }
+
+
 
     // Waliduje dane klienta (wspólna metoda dla dodawania i edycji)
     private bool ValidateClientInputs(out string firstName, out string lastName,
@@ -386,6 +382,11 @@ public partial class MainForm : AppDbContext
         return true;
     }
 
+
+
+
+
+
     /* =========================================================
    SEKCJA: POJAZDY
    ---------------------------------------------------------
@@ -429,6 +430,8 @@ public partial class MainForm : AppDbContext
             .ToList();
     }
 
+
+
     // Obsługuje przycisk wczytujący wszystkie pojazdy z bazy danych
     private void btnLoadVehicles_Click_1(object sender, EventArgs e)
     {
@@ -445,6 +448,8 @@ public partial class MainForm : AppDbContext
         }
     }
 
+
+
     // Wyszukuje pojazdy na podstawie numeru rejestracyjnego lub modelu
     private void btnSearchVehicle_Click(object sender, EventArgs e)
     {
@@ -458,6 +463,8 @@ public partial class MainForm : AppDbContext
         }
     }
 
+
+
     // Obsługuje kliknięcie w tabeli pojazdów i uzupełnia formularz danymi pojazdu
     private void dgvVehicles_CellClick(object sender, DataGridViewCellEventArgs e)
     {
@@ -470,6 +477,8 @@ public partial class MainForm : AppDbContext
         txtSeats.Text = dgvVehicles.CurrentRow.Cells["Seats"].Value?.ToString() ?? "";
         chkVehicleActive.Checked = Convert.ToBoolean(dgvVehicles.CurrentRow.Cells["Active"].Value);
     }
+
+
 
     // Waliduje dane pojazdu (numer rejestracyjny, model, liczba miejsc, status)
     private bool ValidateVehicleInputs(out string plate, out string model, out int seats, out bool active)
@@ -500,6 +509,8 @@ public partial class MainForm : AppDbContext
 
         return true;
     }
+
+
 
     // Dodaje nowy pojazd do bazy danych po poprawnej walidacji danych
     private void btnAddVehicle_Click(object sender, EventArgs e)
@@ -538,6 +549,8 @@ public partial class MainForm : AppDbContext
             MessageBox.Show("Błąd: " + ex.Message);
         }
     }
+
+
 
     // Aktualizuje dane zaznaczonego pojazdu w bazie danych
     private void btnUpdateVehicle_Click(object sender, EventArgs e)
@@ -588,6 +601,8 @@ public partial class MainForm : AppDbContext
         }
     }
 
+
+
     // Usuwa zaznaczony pojazd z bazy danych (jeśli nie jest przypisany do tras)
     private void btnDeleteVehicle_Click(object sender, EventArgs e)
     {
@@ -630,6 +645,8 @@ public partial class MainForm : AppDbContext
         }
     }
 
+
+
     // Czyści formularz pojazdu oraz resetuje zaznaczenie w tabeli
     private void btnClearVehicleForm_Click(object sender, EventArgs e)
     {
@@ -642,6 +659,8 @@ public partial class MainForm : AppDbContext
 
         dgvVehicles.ClearSelection();
     }
+
+
 
     /* =========================================================
    SEKCJA: TRASY / KURSY
@@ -660,6 +679,8 @@ public partial class MainForm : AppDbContext
    Dane przechowywane są w bazie PostgreSQL, a operacje
    CRUD realizowane są z wykorzystaniem Entity Framework Core.
    ========================================================= */
+
+
 
     // Przechowuje ID aktualnie zaznaczonej trasy w tabeli
     private long? _selectedRouteId = null;
@@ -685,6 +706,8 @@ public partial class MainForm : AppDbContext
         cmbRouteVehicle.ValueMember = "VehicleId";
     }
 
+
+
     // Ładuje listę tras z bazy danych (opcjonalnie z filtrem wyszukiwania)
     private void LoadRoutes(string? filter = null)
     {
@@ -706,6 +729,8 @@ public partial class MainForm : AppDbContext
             .OrderByDescending(r => r.RouteId)
             .ToList();
     }
+
+
 
     // Obsługuje przycisk wczytujący wszystkie trasy oraz pojazdy do ComboBox
     private void btnLoadRoutes_Click(object sender, EventArgs e)
@@ -736,6 +761,8 @@ public partial class MainForm : AppDbContext
         }
     }
 
+
+
     // Obsługuje kliknięcie w tabeli tras i uzupełnia formularz danymi trasy
     private void dgvRoutes_CellClick(object sender, DataGridViewCellEventArgs e)
     {
@@ -762,6 +789,8 @@ public partial class MainForm : AppDbContext
             MessageBox.Show("Błąd: " + ex.Message);
         }
     }
+
+
 
     // Waliduje dane trasy (pojazd, miasta, data wyjazdu, cena)
     private bool ValidateRouteInputs(out long vehicleId, out string start, out string end, out DateTime departure, out decimal pricePerson)
@@ -805,6 +834,8 @@ public partial class MainForm : AppDbContext
         return true;
     }
 
+
+
     // Dodaje nową trasę do bazy danych po poprawnej walidacji danych
     private void btnAddRoute_Click(object sender, EventArgs e)
     {
@@ -839,6 +870,8 @@ public partial class MainForm : AppDbContext
         }
 
     }
+
+
 
     // Aktualizuje dane zaznaczonej trasy w bazie danych
     private void btnUpdateRoute_Click(object sender, EventArgs e)
@@ -880,6 +913,8 @@ public partial class MainForm : AppDbContext
             MessageBox.Show("Błąd: " + ex.Message);
         }
     }
+
+
 
     // Usuwa zaznaczoną trasę z bazy danych (jeśli nie istnieją rezerwacje)
     private void btnDeleteRoute_Click(object sender, EventArgs e)
@@ -923,6 +958,8 @@ public partial class MainForm : AppDbContext
         }
     }
 
+
+
     // Czyści formularz trasy oraz resetuje zaznaczenie w tabeli
     private void btnClearRouteForm_Click(object sender, EventArgs e)
     {
@@ -935,6 +972,8 @@ public partial class MainForm : AppDbContext
 
         dgvRoutes.ClearSelection();
     }
+
+
 
     /* =========================================================
    SEKCJA: REZERWACJE
@@ -955,8 +994,12 @@ public partial class MainForm : AppDbContext
    CRUD realizowane są z wykorzystaniem Entity Framework Core.
    ========================================================= */
 
+
+
     // Przechowuje ID aktualnie zaznaczonej rezerwacji w tabeli
     private long? _selectedReservationId = null;
+
+
 
     // Wczytuje listę klientów do ComboBox (wybór klienta dla rezerwacji)
     private void LoadClientsToReservationCombo()
@@ -978,6 +1021,8 @@ public partial class MainForm : AppDbContext
         cmbResClient.ValueMember = "ClientId";
     }
 
+
+
     // Wczytuje listę tras do ComboBox (wybór trasy dla rezerwacji)
     private void LoadRoutesToReservationCombo()
     {
@@ -997,6 +1042,8 @@ public partial class MainForm : AppDbContext
         cmbResRoute.DisplayMember = "Display";
         cmbResRoute.ValueMember = "RouteId";
     }
+
+
 
     // Ładuje listę rezerwacji z bazy danych (opcjonalnie z filtrem wyszukiwania)
     private void LoadReservations(string? filter = null)
@@ -1020,6 +1067,8 @@ public partial class MainForm : AppDbContext
             .ToList();
     }
 
+
+
     // Obsługuje przycisk wczytujący wszystkie rezerwacje oraz dane do ComboBoxów
     private void btnLoadReservations_Click(object sender, EventArgs e)
     {
@@ -1035,6 +1084,8 @@ public partial class MainForm : AppDbContext
         }
     }
 
+
+
     // Wyszukuje rezerwacje na podstawie typu usługi lub statusu
     private void btnSearchReservation_Click(object sender, EventArgs e)
     {
@@ -1047,6 +1098,8 @@ public partial class MainForm : AppDbContext
             MessageBox.Show("Błąd: " + ex.Message);
         }
     }
+
+
 
     // Obsługuje kliknięcie w tabeli rezerwacji i uzupełnia formularz danymi rezerwacji
     private void dgvReservations_CellClick(object sender, DataGridViewCellEventArgs e)
@@ -1078,6 +1131,8 @@ public partial class MainForm : AppDbContext
         }
     }
 
+
+
     // Waliduje dane rezerwacji (klient, trasa, typ usługi, status, data)
     private bool ValidateReservationInputs(out long clientId, out long routeId, out string serviceType, out string status, out DateTime createdAtUtc)
     {
@@ -1107,6 +1162,8 @@ public partial class MainForm : AppDbContext
             return false;
         }
 
+
+
         if (status.Length < 2)
         {
             MessageBox.Show("Status jest niepoprawny.");
@@ -1118,6 +1175,8 @@ public partial class MainForm : AppDbContext
         createdAtUtc = DateTime.SpecifyKind(dtpResCreatedAt.Value, DateTimeKind.Local).ToUniversalTime();
         return true;
     }
+
+
 
     // Dodaje nową rezerwację do bazy danych po poprawnej walidacji danych
     private void btnAddReservation_Click(object sender, EventArgs e)
@@ -1150,6 +1209,8 @@ public partial class MainForm : AppDbContext
             MessageBox.Show("Błąd: " + (ex.InnerException?.Message ?? ex.Message));
         }
     }
+
+
 
     // Aktualizuje dane zaznaczonej rezerwacji w bazie danych
     private void btnUpdateReservation_Click(object sender, EventArgs e)
@@ -1192,6 +1253,8 @@ public partial class MainForm : AppDbContext
         }
     }
 
+
+
     // Usuwa zaznaczoną rezerwację z bazy danych (jeśli brak powiązań)
     private void btnDeleteReservation_Click(object sender, EventArgs e)
     {
@@ -1233,6 +1296,8 @@ public partial class MainForm : AppDbContext
         }
     }
 
+
+
     // Czyści formularz rezerwacji oraz resetuje zaznaczenie w tabeli
     private void btnClearReservationForm_Click(object sender, EventArgs e)
     {
@@ -1243,6 +1308,9 @@ public partial class MainForm : AppDbContext
 
         dgvReservations.ClearSelection();
     }
+
+
+
 
     /* =========================================================
    SEKCJA: RAPORT CSV
@@ -1260,6 +1328,7 @@ public partial class MainForm : AppDbContext
    Dane eksportowane są do pliku CSV z kodowaniem UTF-8,
    kompatybilnego z arkuszami kalkulacyjnymi (np. Excel).
    ========================================================= */
+
 
     // Obsługuje eksport rezerwacji z wybranego miesiąca do pliku CSV
     private void btnExportCsv_Click(object sender, EventArgs e)
@@ -1360,6 +1429,9 @@ public partial class MainForm : AppDbContext
         return s;
     }
 
+
+
+
     /* =========================================================
    SEKCJA: POŁĄCZENIE Z BAZĄ DANYCH
    ---------------------------------------------------------
@@ -1375,6 +1447,8 @@ public partial class MainForm : AppDbContext
    czytelnego komunikatu dla użytkownika.
    ========================================================= */
 
+
+
     // Testuje połączenie z bazą danych i wyświetla status oraz szczegóły błędu
     private void btnTestDb_Click(object sender, EventArgs e)
     {
@@ -1384,6 +1458,8 @@ public partial class MainForm : AppDbContext
             if (txtDbDetails != null) txtDbDetails.Clear();
 
             using var db = new AppDbContext();
+
+            // Najprostszy test: czy aplikacja potrafi połączyć się z bazą
             bool ok = db.Database.CanConnect();
 
             if (ok)

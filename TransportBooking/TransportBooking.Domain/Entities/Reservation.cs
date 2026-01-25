@@ -8,9 +8,4 @@ public class Reservation
     public string ServiceType { get; set; } = "";
     public string Status { get; set; } = "";
     public DateTime CreatedAt { get; set; }
-
-    public Client Client { get; set; }
-
-    public Route Route { get; set; }
-
 }

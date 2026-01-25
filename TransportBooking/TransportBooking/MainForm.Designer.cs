@@ -1,7 +1,4 @@
-﻿
-using static System.Net.Mime.MediaTypeNames;
-
-namespace TransportBooking
+﻿namespace TransportBooking
 {
     partial class MainForm
     {
@@ -9,6 +6,19 @@ namespace TransportBooking
         ///  Required designer variable.
         /// </summary>
         private System.ComponentModel.IContainer components = null;
+
+        /// <summary>
+        ///  Clean up any resources being used.
+        /// </summary>
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && (components != null))
+            {
+                components.Dispose();
+            }
+            base.Dispose(disposing);
+        }
 
         #region Windows Form Designer generated code
 
@@ -19,9 +29,6 @@ namespace TransportBooking
         private void InitializeComponent()
         {
             tabPage9 = new TabPage();
-            txtDbDetails = new TextBox();
-            lblDbStatus = new Label();
-            btnTestDb = new Button();
             tabPage5 = new TabPage();
             label25 = new Label();
             btnExportCsv = new Button();
@@ -104,6 +111,9 @@ namespace TransportBooking
             label6 = new Label();
             label5 = new Label();
             tabControl1 = new TabControl();
+            btnTestDb = new Button();
+            lblDbStatus = new Label();
+            txtDbDetails = new TextBox();
             tabPage9.SuspendLayout();
             tabPage5.SuspendLayout();
             tabPage4.SuspendLayout();
@@ -125,39 +135,10 @@ namespace TransportBooking
             tabPage9.Location = new Point(4, 29);
             tabPage9.Name = "tabPage9";
             tabPage9.Padding = new Padding(3);
-            tabPage9.Size = new Size(1124, 451);
+            tabPage9.Size = new Size(1124, 510);
             tabPage9.TabIndex = 8;
             tabPage9.Text = "Test połączenia z bazą";
             tabPage9.UseVisualStyleBackColor = true;
-            // 
-            // txtDbDetails
-            // 
-            txtDbDetails.Location = new Point(15, 91);
-            txtDbDetails.Multiline = true;
-            txtDbDetails.Name = "txtDbDetails";
-            txtDbDetails.ReadOnly = true;
-            txtDbDetails.ScrollBars = ScrollBars.Vertical;
-            txtDbDetails.Size = new Size(366, 105);
-            txtDbDetails.TabIndex = 2;
-            // 
-            // lblDbStatus
-            // 
-            lblDbStatus.AutoSize = true;
-            lblDbStatus.Location = new Point(15, 58);
-            lblDbStatus.Name = "lblDbStatus";
-            lblDbStatus.Size = new Size(71, 20);
-            lblDbStatus.TabIndex = 1;
-            lblDbStatus.Text = "Status: —";
-            // 
-            // btnTestDb
-            // 
-            btnTestDb.Location = new Point(15, 15);
-            btnTestDb.Name = "btnTestDb";
-            btnTestDb.Size = new Size(366, 29);
-            btnTestDb.TabIndex = 0;
-            btnTestDb.Text = "Test połączenia z bazą";
-            btnTestDb.UseVisualStyleBackColor = true;
-            btnTestDb.Click += btnTestDb_Click;
             // 
             // tabPage5
             // 
@@ -167,7 +148,7 @@ namespace TransportBooking
             tabPage5.Location = new Point(4, 29);
             tabPage5.Name = "tabPage5";
             tabPage5.Padding = new Padding(3);
-            tabPage5.Size = new Size(1124, 451);
+            tabPage5.Size = new Size(1124, 510);
             tabPage5.TabIndex = 4;
             tabPage5.Text = "Raport CSV";
             tabPage5.UseVisualStyleBackColor = true;
@@ -224,7 +205,7 @@ namespace TransportBooking
             tabPage4.Location = new Point(4, 29);
             tabPage4.Name = "tabPage4";
             tabPage4.Padding = new Padding(3);
-            tabPage4.Size = new Size(1124, 451);
+            tabPage4.Size = new Size(1124, 510);
             tabPage4.TabIndex = 3;
             tabPage4.Text = "Rezerwacje";
             tabPage4.UseVisualStyleBackColor = true;
@@ -386,7 +367,7 @@ namespace TransportBooking
             dgvReservations.Location = new Point(476, 6);
             dgvReservations.Name = "dgvReservations";
             dgvReservations.RowHeadersWidth = 51;
-            dgvReservations.Size = new Size(642, 436);
+            dgvReservations.Size = new Size(642, 498);
             dgvReservations.TabIndex = 0;
             dgvReservations.CellClick += dgvReservations_CellClick;
             // 
@@ -413,7 +394,7 @@ namespace TransportBooking
             tabPage3.Location = new Point(4, 29);
             tabPage3.Name = "tabPage3";
             tabPage3.Padding = new Padding(3);
-            tabPage3.Size = new Size(1124, 451);
+            tabPage3.Size = new Size(1124, 510);
             tabPage3.TabIndex = 2;
             tabPage3.Text = "Trasy/Kursy";
             tabPage3.UseVisualStyleBackColor = true;
@@ -421,7 +402,7 @@ namespace TransportBooking
             // label19
             // 
             label19.AutoSize = true;
-            label19.Location = new Point(29, 279);
+            label19.Location = new Point(29, 295);
             label19.Name = "label19";
             label19.Size = new Size(147, 20);
             label19.TabIndex = 17;
@@ -430,7 +411,7 @@ namespace TransportBooking
             // label18
             // 
             label18.AutoSize = true;
-            label18.Location = new Point(29, 214);
+            label18.Location = new Point(29, 224);
             label18.Name = "label18";
             label18.Size = new Size(250, 20);
             label18.TabIndex = 16;
@@ -439,7 +420,7 @@ namespace TransportBooking
             // label17
             // 
             label17.AutoSize = true;
-            label17.Location = new Point(29, 148);
+            label17.Location = new Point(29, 157);
             label17.Name = "label17";
             label17.Size = new Size(186, 20);
             label17.TabIndex = 15;
@@ -465,7 +446,7 @@ namespace TransportBooking
             // 
             // btnClearRouteForm
             // 
-            btnClearRouteForm.Location = new Point(29, 405);
+            btnClearRouteForm.Location = new Point(29, 431);
             btnClearRouteForm.Name = "btnClearRouteForm";
             btnClearRouteForm.Size = new Size(289, 29);
             btnClearRouteForm.TabIndex = 12;
@@ -475,7 +456,7 @@ namespace TransportBooking
             // 
             // btnDeleteRoute
             // 
-            btnDeleteRoute.Location = new Point(29, 370);
+            btnDeleteRoute.Location = new Point(29, 396);
             btnDeleteRoute.Name = "btnDeleteRoute";
             btnDeleteRoute.Size = new Size(289, 29);
             btnDeleteRoute.TabIndex = 11;
@@ -495,7 +476,7 @@ namespace TransportBooking
             // 
             // btnAddRoute
             // 
-            btnAddRoute.Location = new Point(29, 335);
+            btnAddRoute.Location = new Point(29, 361);
             btnAddRoute.Name = "btnAddRoute";
             btnAddRoute.Size = new Size(137, 29);
             btnAddRoute.TabIndex = 9;
@@ -505,7 +486,7 @@ namespace TransportBooking
             // 
             // btnUpdateRoute
             // 
-            btnUpdateRoute.Location = new Point(172, 335);
+            btnUpdateRoute.Location = new Point(172, 361);
             btnUpdateRoute.Name = "btnUpdateRoute";
             btnUpdateRoute.Size = new Size(146, 29);
             btnUpdateRoute.TabIndex = 8;
@@ -532,21 +513,21 @@ namespace TransportBooking
             // 
             // txtPricePerson
             // 
-            txtPricePerson.Location = new Point(29, 302);
+            txtPricePerson.Location = new Point(29, 318);
             txtPricePerson.Name = "txtPricePerson";
             txtPricePerson.Size = new Size(289, 27);
             txtPricePerson.TabIndex = 5;
             // 
             // dtpDepartureTime
             // 
-            dtpDepartureTime.Location = new Point(29, 237);
+            dtpDepartureTime.Location = new Point(29, 247);
             dtpDepartureTime.Name = "dtpDepartureTime";
             dtpDepartureTime.Size = new Size(289, 27);
             dtpDepartureTime.TabIndex = 4;
             // 
             // txtEndCity
             // 
-            txtEndCity.Location = new Point(29, 171);
+            txtEndCity.Location = new Point(29, 180);
             txtEndCity.Name = "txtEndCity";
             txtEndCity.Size = new Size(289, 27);
             txtEndCity.TabIndex = 3;
@@ -572,7 +553,7 @@ namespace TransportBooking
             dgvRoutes.Location = new Point(562, 10);
             dgvRoutes.Name = "dgvRoutes";
             dgvRoutes.RowHeadersWidth = 51;
-            dgvRoutes.Size = new Size(556, 432);
+            dgvRoutes.Size = new Size(556, 465);
             dgvRoutes.TabIndex = 0;
             dgvRoutes.CellClick += dgvRoutes_CellClick;
             // 
@@ -596,7 +577,7 @@ namespace TransportBooking
             tabVehicles.Location = new Point(4, 29);
             tabVehicles.Name = "tabVehicles";
             tabVehicles.Padding = new Padding(3);
-            tabVehicles.Size = new Size(1124, 451);
+            tabVehicles.Size = new Size(1124, 510);
             tabVehicles.TabIndex = 1;
             tabVehicles.Text = "Pojazdy";
             tabVehicles.UseVisualStyleBackColor = true;
@@ -762,7 +743,7 @@ namespace TransportBooking
             tabPage1.Location = new Point(4, 29);
             tabPage1.Name = "tabPage1";
             tabPage1.Padding = new Padding(3);
-            tabPage1.Size = new Size(1124, 451);
+            tabPage1.Size = new Size(1124, 510);
             tabPage1.TabIndex = 0;
             tabPage1.Text = "Klienci";
             tabPage1.UseVisualStyleBackColor = true;
@@ -967,14 +948,43 @@ namespace TransportBooking
             tabControl1.Location = new Point(12, 12);
             tabControl1.Name = "tabControl1";
             tabControl1.SelectedIndex = 0;
-            tabControl1.Size = new Size(1132, 484);
+            tabControl1.Size = new Size(1132, 543);
             tabControl1.TabIndex = 3;
+            // 
+            // btnTestDb
+            // 
+            btnTestDb.Location = new Point(15, 15);
+            btnTestDb.Name = "btnTestDb";
+            btnTestDb.Size = new Size(366, 29);
+            btnTestDb.TabIndex = 0;
+            btnTestDb.Text = "Test połączenia z bazą";
+            btnTestDb.UseVisualStyleBackColor = true;
+            btnTestDb.Click += btnTestDb_Click;
+            // 
+            // lblDbStatus
+            // 
+            lblDbStatus.AutoSize = true;
+            lblDbStatus.Location = new Point(15, 58);
+            lblDbStatus.Name = "lblDbStatus";
+            lblDbStatus.Size = new Size(71, 20);
+            lblDbStatus.TabIndex = 1;
+            lblDbStatus.Text = "Status: —";
+            // 
+            // txtDbDetails
+            // 
+            txtDbDetails.Location = new Point(15, 91);
+            txtDbDetails.Multiline = true;
+            txtDbDetails.Name = "txtDbDetails";
+            txtDbDetails.ReadOnly = true;
+            txtDbDetails.ScrollBars = ScrollBars.Vertical;
+            txtDbDetails.Size = new Size(366, 105);
+            txtDbDetails.TabIndex = 2;
             // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
-            NewMethod();
-            ClientSize = new Size(1156, 495);
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(1156, 567);
             Controls.Add(tabControl1);
             Name = "MainForm";
             Text = "Panel Admina - Zarządzanie transportem";
@@ -996,16 +1006,6 @@ namespace TransportBooking
             ((System.ComponentModel.ISupportInitialize)dgvClients).EndInit();
             tabControl1.ResumeLayout(false);
             ResumeLayout(false);
-        }
-
-        private static void NewMethod()
-        {
-            AutoScaleMode = AutoScaleMode.Font;
-        }
-
-        private void SuspendLayout()
-        {
-            throw new NotImplementedException();
         }
 
         #endregion
@@ -1096,11 +1096,5 @@ namespace TransportBooking
         private TextBox txtDbDetails;
         private Label lblDbStatus;
         private Button btnTestDb;
-
-        public SizeF AutoScaleDimensions { get; private set; }
-        public Size ClientSize { get; private set; }
-        public object Controls { get; private set; }
-        public string Name { get; private set; }
-        public string Text { get; private set; }
     }
 }

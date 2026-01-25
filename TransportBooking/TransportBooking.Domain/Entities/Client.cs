@@ -1,9 +1,5 @@
 ﻿namespace TransportBooking.Domain.Entities;
 
-
-using System.Collections.Generic;
-
-
 public class Client
 {
     public long ClientId { get; set; }
@@ -18,6 +14,4 @@ public class Client
     public string? City { get; set; }
 
     public DateTime CreatedAt { get; set; }
-
-    public ICollection<Reservation> Reservations { get; set; }
 }
