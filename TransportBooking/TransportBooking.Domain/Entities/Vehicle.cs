@@ -7,4 +7,7 @@ public class Vehicle
     public string Model { get; set; } = "";
     public int Seats { get; set; }
     public bool Active { get; set; }
+
+    public ICollection<Route> Routes { get; set; }
+
 }

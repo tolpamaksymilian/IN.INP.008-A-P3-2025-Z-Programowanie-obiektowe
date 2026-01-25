@@ -7,7 +7,7 @@ using TransportBooking.Domain.Entities;
 using System.Text;
 
 
-public partial class MainForm : Form
+public partial class MainForm : AppDbContext
 {
 
     /// <summary>
@@ -115,11 +115,11 @@ public partial class MainForm : Form
     {
         try
         {
-            if (!ValidateClientInputs(out var firstName, out var lastName,out var email, out var phone, out var city, out var address, out var postalCode))
+            if (!ValidateClientInputs(out var firstName, out var lastName, out var email, out var phone, out var city, out var address, out var postalCode))
             {
                 return;
             }
-                
+
             using var db = new AppDbContext();
 
             if (email is not null)

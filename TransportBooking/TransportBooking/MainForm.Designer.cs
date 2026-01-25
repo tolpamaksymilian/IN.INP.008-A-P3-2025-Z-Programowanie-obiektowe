@@ -1,4 +1,7 @@
-﻿namespace TransportBooking
+﻿
+using static System.Net.Mime.MediaTypeNames;
+
+namespace TransportBooking
 {
     partial class MainForm
     {
@@ -6,19 +9,6 @@
         ///  Required designer variable.
         /// </summary>
         private System.ComponentModel.IContainer components = null;
-
-        /// <summary>
-        ///  Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing && (components != null))
-            {
-                components.Dispose();
-            }
-            base.Dispose(disposing);
-        }
 
         #region Windows Form Designer generated code
 
@@ -983,7 +973,7 @@
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
-            AutoScaleMode = AutoScaleMode.Font;
+            NewMethod();
             ClientSize = new Size(1156, 495);
             Controls.Add(tabControl1);
             Name = "MainForm";
@@ -1006,6 +996,16 @@
             ((System.ComponentModel.ISupportInitialize)dgvClients).EndInit();
             tabControl1.ResumeLayout(false);
             ResumeLayout(false);
+        }
+
+        private static void NewMethod()
+        {
+            AutoScaleMode = AutoScaleMode.Font;
+        }
+
+        private void SuspendLayout()
+        {
+            throw new NotImplementedException();
         }
 
         #endregion
@@ -1096,5 +1096,11 @@
         private TextBox txtDbDetails;
         private Label lblDbStatus;
         private Button btnTestDb;
+
+        public SizeF AutoScaleDimensions { get; private set; }
+        public Size ClientSize { get; private set; }
+        public object Controls { get; private set; }
+        public string Name { get; private set; }
+        public string Text { get; private set; }
     }
 }

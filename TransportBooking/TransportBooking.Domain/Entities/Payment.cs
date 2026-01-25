@@ -8,4 +8,7 @@ public class Payment
     public DateTime? PaidAt { get; set; }
     public string Method { get; set; } = "";
     public string PayStatus { get; set; } = "";
+
+    public ICollection<Payment> Payments { get; set; }
+    public ICollection<Package> Packages { get; set; }
 }

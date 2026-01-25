@@ -14,4 +14,8 @@ namespace TransportBooking
             Application.Run(new MainForm());
         }
     }
+
+    public class Class1
+    {
+    }
 }

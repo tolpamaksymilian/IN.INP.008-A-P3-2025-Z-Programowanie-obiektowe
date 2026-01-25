@@ -8,4 +8,7 @@ public class Route
     public string EndCity { get; set; } = "";
     public DateTime DepartureTime { get; set; }
     public decimal PricePerson { get; set; }
+
+    public ICollection<Reservation> Reservations { get; set; }
+
 }
