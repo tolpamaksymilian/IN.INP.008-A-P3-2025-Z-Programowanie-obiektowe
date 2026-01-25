@@ -29,6 +29,9 @@
         private void InitializeComponent()
         {
             tabPage9 = new TabPage();
+            txtDbDetails = new TextBox();
+            lblDbStatus = new Label();
+            btnTestDb = new Button();
             tabPage5 = new TabPage();
             label25 = new Label();
             btnExportCsv = new Button();
@@ -111,9 +114,6 @@
             label6 = new Label();
             label5 = new Label();
             tabControl1 = new TabControl();
-            btnTestDb = new Button();
-            lblDbStatus = new Label();
-            txtDbDetails = new TextBox();
             tabPage9.SuspendLayout();
             tabPage5.SuspendLayout();
             tabPage4.SuspendLayout();
@@ -139,6 +139,35 @@
             tabPage9.TabIndex = 8;
             tabPage9.Text = "Test połączenia z bazą";
             tabPage9.UseVisualStyleBackColor = true;
+            // 
+            // txtDbDetails
+            // 
+            txtDbDetails.Location = new Point(15, 91);
+            txtDbDetails.Multiline = true;
+            txtDbDetails.Name = "txtDbDetails";
+            txtDbDetails.ReadOnly = true;
+            txtDbDetails.ScrollBars = ScrollBars.Vertical;
+            txtDbDetails.Size = new Size(366, 105);
+            txtDbDetails.TabIndex = 2;
+            // 
+            // lblDbStatus
+            // 
+            lblDbStatus.AutoSize = true;
+            lblDbStatus.Location = new Point(15, 58);
+            lblDbStatus.Name = "lblDbStatus";
+            lblDbStatus.Size = new Size(71, 20);
+            lblDbStatus.TabIndex = 1;
+            lblDbStatus.Text = "Status: —";
+            // 
+            // btnTestDb
+            // 
+            btnTestDb.Location = new Point(15, 15);
+            btnTestDb.Name = "btnTestDb";
+            btnTestDb.Size = new Size(366, 29);
+            btnTestDb.TabIndex = 0;
+            btnTestDb.Text = "Test połączenia z bazą";
+            btnTestDb.UseVisualStyleBackColor = true;
+            btnTestDb.Click += btnTestDb_Click;
             // 
             // tabPage5
             // 
@@ -924,9 +953,9 @@
             label6.AutoSize = true;
             label6.Location = new Point(25, 108);
             label6.Name = "label6";
-            label6.Size = new Size(88, 20);
+            label6.Size = new Size(52, 20);
             label6.TabIndex = 3;
-            label6.Text = "Adres email";
+            label6.Text = "E-mail";
             // 
             // label5
             // 
@@ -950,35 +979,6 @@
             tabControl1.SelectedIndex = 0;
             tabControl1.Size = new Size(1132, 543);
             tabControl1.TabIndex = 3;
-            // 
-            // btnTestDb
-            // 
-            btnTestDb.Location = new Point(15, 15);
-            btnTestDb.Name = "btnTestDb";
-            btnTestDb.Size = new Size(366, 29);
-            btnTestDb.TabIndex = 0;
-            btnTestDb.Text = "Test połączenia z bazą";
-            btnTestDb.UseVisualStyleBackColor = true;
-            btnTestDb.Click += btnTestDb_Click;
-            // 
-            // lblDbStatus
-            // 
-            lblDbStatus.AutoSize = true;
-            lblDbStatus.Location = new Point(15, 58);
-            lblDbStatus.Name = "lblDbStatus";
-            lblDbStatus.Size = new Size(71, 20);
-            lblDbStatus.TabIndex = 1;
-            lblDbStatus.Text = "Status: —";
-            // 
-            // txtDbDetails
-            // 
-            txtDbDetails.Location = new Point(15, 91);
-            txtDbDetails.Multiline = true;
-            txtDbDetails.Name = "txtDbDetails";
-            txtDbDetails.ReadOnly = true;
-            txtDbDetails.ScrollBars = ScrollBars.Vertical;
-            txtDbDetails.Size = new Size(366, 105);
-            txtDbDetails.TabIndex = 2;
             // 
             // MainForm
             // 
