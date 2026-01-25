@@ -9,6 +9,27 @@ using System.Text;
 
 public partial class MainForm : Form
 {
+    /// <summary>
+    /// PROJEKT PROGRAMOWANIE OBIEKTOWE C#
+    /// Temat: System rezerwacji transportu i paczek
+    ///
+    /// Aplikacja desktopowa (Windows Forms) współpracująca z bazą danych PostgreSQL.
+    /// Umożliwia zarządzanie klientami, pojazdami, trasami i rezerwacjami (CRUD),
+    /// posiada walidację danych, obsługę wyjątków oraz eksport raportu miesięcznego do CSV.
+    /// 
+    /// Wersja: v1.0
+    /// Data: 25.01.2026
+    /// 
+    /// </summary>
+    /// <remarks>
+    /// Autor: Maksymilian Tołpa
+    /// Nr albumu: 71368
+    /// Prowadzący: mgr inż. Ewa Żesławska
+    /// Rok: 2026
+    ///
+    /// Technologie: C#, .NET 8, Windows Forms, PostgreSQL, Entity Framework Core (Npgsql)
+    /// </remarks>
+
     public MainForm()
     {
         InitializeComponent();
