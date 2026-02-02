@@ -17,8 +17,8 @@ public partial class MainForm : Form
     /// Umożliwia zarządzanie klientami, pojazdami, trasami i rezerwacjami (CRUD),
     /// posiada walidację danych, obsługę wyjątków oraz eksport raportu miesięcznego do CSV.
     /// 
-    /// Wersja: v1.0
-    /// Data: 25.01.2026
+    /// Wersja: v1.1
+    /// Data: 02.02.2026
     /// 
     /// </summary>
     /// <remarks>
