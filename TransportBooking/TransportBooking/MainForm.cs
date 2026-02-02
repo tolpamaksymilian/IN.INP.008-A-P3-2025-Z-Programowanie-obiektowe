@@ -437,30 +437,27 @@ public partial class MainForm : Form
     }
 
 
-
-
-
     // Waliduje dane klienta (wspólna metoda dla dodawania i edycji)
     private bool ValidateClientInputs(out string firstName, out string lastName,
-    out string? email, out string? phone, out string? city, out string? address, out string? postalCode)
+        out string email, out string phone, out string city, out string address, out string postalCode)
     {
         firstName = txtFirstName.Text.Trim();
         lastName = txtLastName.Text.Trim();
-        email = string.IsNullOrWhiteSpace(txtEmail.Text) ? null : txtEmail.Text.Trim();
-        phone = string.IsNullOrWhiteSpace(txtPhone.Text) ? null : txtPhone.Text.Trim();
-        city = string.IsNullOrWhiteSpace(txtCity.Text) ? null : txtCity.Text.Trim();
-        address = string.IsNullOrWhiteSpace(txtAddress.Text) ? null : txtAddress.Text.Trim();
-        postalCode = string.IsNullOrWhiteSpace(txtPostalCode.Text) ? null : txtPostalCode.Text.Trim();
+        email = txtEmail.Text.Trim();
+        phone = txtPhone.Text.Trim();
+        city = txtCity.Text.Trim();
+        address = txtAddress.Text.Trim();
+        postalCode = txtPostalCode.Text.Trim();
 
         if (firstName.Length < 2) { MessageBox.Show("Imię musi mieć co najmniej 2 znaki."); return false; }
         if (lastName.Length < 2) { MessageBox.Show("Nazwisko musi mieć co najmniej 2 znaki."); return false; }
 
-        // email jeśli podany
-        if (email is not null)
+        // Email (jeśli podany)
+        if (email != "")
         {
             int at = email.IndexOf('@');
             int dot = email.LastIndexOf('.');
-            if (at <= 0 || dot <= at + 1 || dot == email.Length - 1)
+            if (at <= 0 || dot <= at + 1 || dot >= email.Length - 1)
             {
                 MessageBox.Show("Podaj poprawny adres e-mail.");
                 return false;
@@ -468,27 +465,34 @@ public partial class MainForm : Form
             if (email.Length > 120) { MessageBox.Show("Email max 120 znaków."); return false; }
         }
 
-        // telefon jeśli podany
-        if (phone is not null)
+        // Telefon (jeśli podany) 7–15 cyfr po usunięciu spacji, myślników, plusa
+        if (phone != "")
         {
             string cleaned = phone.Replace(" ", "").Replace("-", "");
-            if (cleaned.StartsWith("+")) cleaned = cleaned[1..];
+            if (cleaned.StartsWith("+")) cleaned = cleaned.Substring(1);
 
-            if (cleaned.Length < 7 || cleaned.Length > 15 || !cleaned.All(char.IsDigit))
+            if (cleaned.Length < 7 || cleaned.Length > 15 || !IsAllDigits(cleaned))
             {
-                MessageBox.Show("Podaj poprawny numer telefonu (7–15 cyfr).");
+                MessageBox.Show("Podaj poprawny numer telefonu (7-15 cyfr).");
                 return false;
             }
             if (phone.Length > 20) { MessageBox.Show("Telefon max 20 znaków."); return false; }
         }
 
-        // kod pocztowy jeśli podany
-        if (postalCode is not null)
+        // Kod pocztowy (jeśli podany) 00-000 lub 00000
+        if (postalCode != "")
         {
             string pc = postalCode.Replace(" ", "");
-            bool ok =
-                (pc.Length == 6 && pc[2] == '-' && pc.Take(2).All(char.IsDigit) && pc.Skip(3).All(char.IsDigit)) ||
-                (pc.Length == 5 && pc.All(char.IsDigit));
+
+            bool ok = false;
+            if (pc.Length == 6 && pc[2] == '-')
+            {
+                ok = IsAllDigits(pc.Substring(0, 2)) && IsAllDigits(pc.Substring(3, 3));
+            }
+            else if (pc.Length == 5)
+            {
+                ok = IsAllDigits(pc);
+            }
 
             if (!ok)
             {
@@ -498,11 +502,24 @@ public partial class MainForm : Form
             if (postalCode.Length > 10) { MessageBox.Show("Kod pocztowy max 10 znaków."); return false; }
         }
 
-        if (address is not null && address.Length > 120) { MessageBox.Show("Adres max 120 znaków."); return false; }
-        if (city is not null && city.Length > 60) { MessageBox.Show("Miasto max 60 znaków."); return false; }
+        if (address != "" && address.Length > 120) { MessageBox.Show("Adres max 120 znaków."); return false; }
+        if (city != "" && city.Length > 60) { MessageBox.Show("Miasto max 60 znaków."); return false; }
 
         return true;
     }
+    // Sprawdza czy cały napis składa się z cyfr
+    private bool IsAllDigits(string text)
+    {
+        if (text == null || text == "") return false;
+
+        for (int i = 0; i < text.Length; i++)
+        {
+            if (!char.IsDigit(text[i]))
+                return false;
+        }
+        return true;
+    }
+
 
 
 
