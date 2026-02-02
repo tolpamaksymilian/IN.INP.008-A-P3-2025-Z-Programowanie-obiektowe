@@ -1030,39 +1030,34 @@ public partial class MainForm : Form
     }
 
     // Waliduje dane trasy (pojazd, miasta, data wyjazdu, cena)
-    private bool ValidateRouteInputs(out long vehicleId, out string start, out string end, out DateTime departure, out decimal pricePerson)
+    private bool ValidateRouteInputs(out long vehicleId, out string start, out string end,
+        out DateTime departure, out decimal pricePerson)
     {
-        // ustaw wartości domyślne dla OUT (żeby nie było CS0177)
         vehicleId = 0;
+        pricePerson = 0;
+
         start = txtStartCity.Text.Trim();
         end = txtEndCity.Text.Trim();
         departure = dtpDepartureTime.Value;
-        pricePerson = 0;
 
         // pojazd
-        if (cmbRouteVehicle.SelectedValue == null || !long.TryParse(cmbRouteVehicle.SelectedValue.ToString(), out vehicleId))
+        if (cmbRouteVehicle.SelectedValue == null ||
+            !long.TryParse(cmbRouteVehicle.SelectedValue.ToString(), out vehicleId))
         {
             MessageBox.Show("Wybierz pojazd dla trasy.");
             return false;
         }
 
         // miasta
-        if (start.Length < 2)
-        {
-            MessageBox.Show("Miasto startowe jest za krótkie.");
-            return false;
-        }
-
-        if (end.Length < 2)
-        {
-            MessageBox.Show("Miasto docelowe jest za krótkie.");
-            return false;
-        }
+        if (start.Length < 2) { MessageBox.Show("Miasto startowe jest za krótkie."); return false; }
+        if (end.Length < 2) { MessageBox.Show("Miasto docelowe jest za krótkie."); return false; }
 
         // cena
-        var raw = txtPricePerson.Text.Trim().Replace(',', '.');
-        if (!decimal.TryParse(raw, System.Globalization.NumberStyles.Any,
-                System.Globalization.CultureInfo.InvariantCulture, out pricePerson) || pricePerson < 0)
+        string raw = txtPricePerson.Text.Trim().Replace(',', '.');
+        if (!decimal.TryParse(raw,
+                System.Globalization.NumberStyles.Any,
+                System.Globalization.CultureInfo.InvariantCulture,
+                out pricePerson) || pricePerson < 0)
         {
             MessageBox.Show("Cena za osobę musi być liczbą >= 0 (np. 120.50).");
             return false;
@@ -1073,25 +1068,28 @@ public partial class MainForm : Form
 
 
 
+
     // Dodaje nową trasę do bazy danych po poprawnej walidacji danych
     private void btnAddRoute_Click(object sender, EventArgs e)
     {
         try
         {
-            if (!ValidateRouteInputs(out var vehicleId, out var start, out var end, out var departure, out var price))
+            long vehicleId;
+            string start, end;
+            DateTime departure;
+            decimal price;
+
+            if (!ValidateRouteInputs(out vehicleId, out start, out end, out departure, out price))
                 return;
 
-            using var db = new AppDbContext();
+            AppDbContext db = new AppDbContext();
 
-            var route = new Route
-            {
-                VehicleId = vehicleId,
-                StartCity = start,
-                EndCity = end,
-                DepartureTime = DateTime.SpecifyKind(departure, DateTimeKind.Local).ToUniversalTime(),
-                PricePerson = price
-            };
-
+            Route route = new Route();
+            route.VehicleId = vehicleId;
+            route.StartCity = start;
+            route.EndCity = end;
+            route.DepartureTime = departure;
+            route.PricePerson = price;
 
             db.Routes.Add(route);
             db.SaveChanges();
@@ -1102,42 +1100,36 @@ public partial class MainForm : Form
         }
         catch (Exception ex)
         {
-            var details = ex.InnerException?.Message ?? ex.Message;
+            string details = (ex.InnerException != null) ? ex.InnerException.Message : ex.Message;
             MessageBox.Show("Błąd: " + details);
         }
-
     }
-
-
 
     // Aktualizuje dane zaznaczonej trasy w bazie danych
     private void btnUpdateRoute_Click(object sender, EventArgs e)
     {
         try
         {
-            if (_selectedRouteId is null)
-            {
-                MessageBox.Show("Zaznacz trasę w tabeli.");
-                return;
-            }
+            if (_selectedRouteId == null) { MessageBox.Show("Zaznacz trasę w tabeli."); return; }
 
-            if (!ValidateRouteInputs(out var vehicleId, out var start, out var end, out var departure, out var price))
-                return;
+            long vehicleId; string start, end; DateTime departure; decimal price;
+            if (!ValidateRouteInputs(out vehicleId, out start, out end, out departure, out price)) return;
 
-            using var db = new AppDbContext();
+            AppDbContext db = new AppDbContext();
+            long routeId = _selectedRouteId.Value;
 
-            var route = db.Routes.FirstOrDefault(r => r.RouteId == _selectedRouteId.Value);
-            if (route == null)
-            {
-                MessageBox.Show("Trasa nie istnieje.");
-                LoadVehicles("");
-                return;
-            }
+            List<Route> routes = db.Routes.ToList();
+            Route route = null;
+
+            for (int i = 0; i < routes.Count; i++)
+                if (routes[i].RouteId == routeId) { route = routes[i]; break; }
+
+            if (route == null) { MessageBox.Show("Trasa nie istnieje."); LoadRoutes(""); return; }
 
             route.VehicleId = vehicleId;
             route.StartCity = start;
             route.EndCity = end;
-            route.DepartureTime = DateTime.SpecifyKind(departure, DateTimeKind.Local).ToUniversalTime();
+            route.DepartureTime = departure; // prosto
             route.PricePerson = price;
 
             db.SaveChanges();
@@ -1151,51 +1143,49 @@ public partial class MainForm : Form
         }
     }
 
-
-
     // Usuwa zaznaczoną trasę z bazy danych (jeśli nie istnieją rezerwacje)
     private void btnDeleteRoute_Click(object sender, EventArgs e)
     {
         try
         {
-            if (_selectedRouteId is null)
-            {
-                MessageBox.Show("Zaznacz trasę w tabeli.");
+            if (_selectedRouteId == null) { MessageBox.Show("Zaznacz trasę w tabeli."); return; }
+
+            AppDbContext db = new AppDbContext();
+            long routeId = _selectedRouteId.Value;
+
+            // blokada: są rezerwacje na trasę
+            List<Reservation> reservations = db.Reservations.ToList();
+            for (int i = 0; i < reservations.Count; i++)
+                if (reservations[i].RouteId == routeId)
+                {
+                    MessageBox.Show("Nie można usunąć trasy — istnieją rezerwacje na tę trasę.");
+                    return;
+                }
+
+            if (MessageBox.Show("Czy na pewno usunąć trasę?", "Potwierdzenie",
+                MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes)
                 return;
-            }
 
-            using var db = new AppDbContext();
+            // znalezienie trasy
+            List<Route> routes = db.Routes.ToList();
+            Route route = null;
+            for (int i = 0; i < routes.Count; i++)
+                if (routes[i].RouteId == routeId) { route = routes[i]; break; }
 
-            bool hasReservations = db.Reservations.Any(r => r.RouteId == _selectedRouteId.Value);
-            if (hasReservations)
-            {
-                MessageBox.Show("Nie można usunąć trasy — istnieją rezerwacje na tę trasę.");
-                return;
-            }
+            if (route == null) return;
 
-            var confirm = MessageBox.Show(
-                "Czy na pewno usunąć trasę?",
-                "Potwierdzenie",
-                MessageBoxButtons.YesNo,
-                MessageBoxIcon.Warning);
-
-            if (confirm != DialogResult.Yes) return;
-
-            var route = db.Routes.First(r => r.RouteId == _selectedRouteId.Value);
             db.Routes.Remove(route);
             db.SaveChanges();
 
             MessageBox.Show("Usunięto trasę ✅");
             btnClearRouteForm_Click(sender, e);
-            LoadVehicles("");
+            LoadRoutes("");
         }
         catch (Exception ex)
         {
             MessageBox.Show("Błąd: " + ex.Message);
         }
     }
-
-
 
     // Czyści formularz trasy oraz resetuje zaznaczenie w tabeli
     private void btnClearRouteForm_Click(object sender, EventArgs e)
@@ -1209,8 +1199,6 @@ public partial class MainForm : Form
 
         dgvRoutes.ClearSelection();
     }
-
-
 
     /* =========================================================
    SEKCJA: REZERWACJE
