@@ -1414,45 +1414,41 @@ public partial class MainForm : Form
     {
         clientId = 0;
         routeId = 0;
-        serviceType = cmbServiceType.SelectedItem?.ToString() ?? "osoby";
-        status = cmbResStatus.SelectedItem?.ToString() ?? "new";
+        createdAtUtc = DateTime.UtcNow;
+
+        serviceType = "PERSON";
+        status = "NEW";
+
+        if (cmbServiceType.SelectedItem != null) serviceType = cmbServiceType.SelectedItem.ToString();
+        if (cmbResStatus.SelectedItem != null) status = cmbResStatus.SelectedItem.ToString();
 
         if (cmbResClient.SelectedValue == null || !long.TryParse(cmbResClient.SelectedValue.ToString(), out clientId))
         {
             MessageBox.Show("Wybierz klienta.");
-            createdAtUtc = DateTime.UtcNow;
             return false;
         }
 
         if (cmbResRoute.SelectedValue == null || !long.TryParse(cmbResRoute.SelectedValue.ToString(), out routeId))
         {
             MessageBox.Show("Wybierz trasę.");
-            createdAtUtc = DateTime.UtcNow;
             return false;
         }
 
         if (serviceType != "PERSON" && serviceType != "PACKAGE")
         {
             MessageBox.Show("Niepoprawny typ usługi.");
-            createdAtUtc = DateTime.UtcNow;
             return false;
         }
-
-
 
         if (status.Length < 2)
         {
             MessageBox.Show("Status jest niepoprawny.");
-            createdAtUtc = DateTime.UtcNow;
             return false;
         }
 
-        // zapisuj w UTC (bezpiecznie dla Postgres timestamptz)
-        createdAtUtc = DateTime.SpecifyKind(dtpResCreatedAt.Value, DateTimeKind.Local).ToUniversalTime();
+        createdAtUtc = dtpResCreatedAt.Value.ToUniversalTime();
         return true;
     }
-
-
 
     // Dodaje nową rezerwację do bazy danych po poprawnej walidacji danych
     private void btnAddReservation_Click(object sender, EventArgs e)
@@ -1485,8 +1481,6 @@ public partial class MainForm : Form
             MessageBox.Show("Błąd: " + (ex.InnerException?.Message ?? ex.Message));
         }
     }
-
-
 
     // Aktualizuje dane zaznaczonej rezerwacji w bazie danych
     private void btnUpdateReservation_Click(object sender, EventArgs e)
