@@ -146,15 +146,33 @@ public partial class MainForm : Form
     {
         try
         {
-            if (!ValidateClientInputs(out var firstName, out var lastName,
-                    out var email, out var phone, out var city, out var address, out var postalCode))
+            // 1) Walidacja danych wejściowych
+            string firstName, lastName, email, phone, city, address, postalCode;
+
+            bool ok = ValidateClientInputs(out firstName, out lastName, out email, out phone, out city, out address, out postalCode);
+            if (!ok)
                 return;
 
-            using var db = new AppDbContext();
+            // 2) Połączenie z bazą
+            AppDbContext db = new AppDbContext();
 
-            if (email is not null)
+            // 3) Sprawdzenie czy email już istnieje (bez LINQ)
+            if (email != null && email.Trim() != "")
             {
-                bool exists = db.Clients.Any(c => c.Email == email);
+                List<Client> clients = db.Clients.ToList();
+
+                bool exists = false;
+                for (int i = 0; i < clients.Count; i++)
+                {
+                    Client c = clients[i];
+
+                    if (c.Email != null && c.Email == email)
+                    {
+                        exists = true;
+                        break;
+                    }
+                }
+
                 if (exists)
                 {
                     MessageBox.Show("Klient z takim adresem e-mail już istnieje.");
@@ -162,22 +180,23 @@ public partial class MainForm : Form
                 }
             }
 
-            var client = new Client
-            {
-                FirstName = firstName,
-                LastName = lastName,
-                Email = email,
-                Phone = phone,
-                City = city,
-                Address = address,
-                PostalCode = postalCode,
-                CreatedAt = DateTime.UtcNow
-            };
+            // 4) Tworzenie obiektu klienta (krok po kroku)
+            Client client = new Client();
+            client.FirstName = firstName;
+            client.LastName = lastName;
+            client.Email = email;
+            client.Phone = phone;
+            client.City = city;
+            client.Address = address;
+            client.PostalCode = postalCode;
+            client.CreatedAt = DateTime.Now; // prosto (jeśli chcesz UTC, zmienimy)
 
+            // 5) Zapis do bazy
             db.Clients.Add(client);
             db.SaveChanges();
 
-            MessageBox.Show($"Dodano klienta ✅ ID: {client.ClientId}");
+            // 6) Info + czyszczenie formularza + odświeżenie listy
+            MessageBox.Show("Dodano klienta ✅ ID: " + client.ClientId);
             btnClearClientForm_Click(sender, e);
             LoadClients(txtSearchClient.Text);
         }
@@ -186,6 +205,7 @@ public partial class MainForm : Form
             MessageBox.Show("Błąd: " + ex.Message);
         }
     }
+
 
 
 
