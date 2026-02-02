@@ -521,11 +521,6 @@ public partial class MainForm : Form
     }
 
 
-
-
-
-
-
     /* =========================================================
    SEKCJA: POJAZDY
    ---------------------------------------------------------
@@ -545,29 +540,52 @@ public partial class MainForm : Form
     // Przechowuje ID aktualnie zaznaczonego pojazdu w tabeli
     private long? _selectedVehicleId = null;
 
-
-
     // Ładuje listę pojazdów z bazy danych (opcjonalnie z filtrem wyszukiwania)
-    private void LoadVehicles(string? filter = null)
+    private void LoadVehicles(string filter)
     {
-        using var db = new AppDbContext();
+        AppDbContext db = new AppDbContext();
 
-        var q = db.Vehicles.AsNoTracking().AsQueryable();
+        List<Vehicle> allVehicles = db.Vehicles.ToList();
+        List<Vehicle> result = new List<Vehicle>();
 
-        if (!string.IsNullOrWhiteSpace(filter))
+        if (filter != null) filter = filter.Trim().ToLower();
+
+        // filtrowanie (jeśli coś wpisano)
+        if (filter != null && filter != "")
         {
-            filter = filter.Trim().ToLower();
+            for (int i = 0; i < allVehicles.Count; i++)
+            {
+                Vehicle v = allVehicles[i];
 
-            q = q.Where(v =>
-                v.PlateNumber.ToLower().Contains(filter) ||
-                v.Model.ToLower().Contains(filter)
-            );
+                string plate = (v.PlateNumber == null) ? "" : v.PlateNumber.ToLower();
+                string model = (v.Model == null) ? "" : v.Model.ToLower();
+
+                if (plate.Contains(filter) || model.Contains(filter))
+                    result.Add(v);
+            }
+        }
+        else
+        {
+            result = allVehicles;
         }
 
-        dgvVehicles.DataSource = q
-            .OrderByDescending(v => v.VehicleId)
-            .ToList();
+        // sortowanie malejąco po VehicleId
+        for (int i = 0; i < result.Count - 1; i++)
+        {
+            for (int j = i + 1; j < result.Count; j++)
+            {
+                if (result[i].VehicleId < result[j].VehicleId)
+                {
+                    Vehicle temp = result[i];
+                    result[i] = result[j];
+                    result[j] = temp;
+                }
+            }
+        }
+
+        dgvVehicles.DataSource = result;
     }
+
 
 
 
@@ -579,7 +597,7 @@ public partial class MainForm : Form
 
         try
         {
-            LoadVehicles();
+            LoadVehicles("");
         }
         catch (Exception ex)
         {
@@ -720,7 +738,7 @@ public partial class MainForm : Form
             if (vehicle == null)
             {
                 MessageBox.Show("Pojazd nie istnieje.");
-                LoadVehicles();
+                LoadVehicles("");
                 return;
             }
 
@@ -776,7 +794,7 @@ public partial class MainForm : Form
 
             MessageBox.Show("Usunięto pojazd ✅");
             btnClearVehicleForm_Click(sender, e);
-            LoadVehicles();
+            LoadVehicles("");
         }
         catch (Exception ex)
         {
