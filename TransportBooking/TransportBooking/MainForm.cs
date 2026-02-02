@@ -70,50 +70,75 @@ public partial class MainForm : Form
    ========================================================= */
 
     // Ładuje listę klientów z bazy danych (opcjonalnie z filtrem wyszukiwania)
-    private void LoadClients(string? filter = null)
+    private void LoadClients(string filter)
     {
-        using var db = new AppDbContext();
+        AppDbContext db = new AppDbContext();
 
-        var q = db.Clients.AsNoTracking().AsQueryable();
+        List<Client> allClients = db.Clients.ToList();
+        List<Client> result = new List<Client>();
 
-        if (!string.IsNullOrWhiteSpace(filter))
+        if (filter != null && filter.Trim() != "")
         {
-            filter = filter.Trim().ToLower();
+            string search = filter.Trim().ToLower();
 
-            q = q.Where(c =>
-                (c.FirstName != null && c.FirstName.ToLower().Contains(filter)) ||
-                (c.LastName != null && c.LastName.ToLower().Contains(filter)) ||
-                (c.Email != null && c.Email.ToLower().Contains(filter)) ||
-                (c.Phone != null && c.Phone.ToLower().Contains(filter)) ||
-                (c.City != null && c.City.ToLower().Contains(filter))
-            );
+            for (int i = 0; i < allClients.Count; i++)
+            {
+                Client c = allClients[i];
+
+                bool match = false;
+
+                if (c.FirstName != null && c.FirstName.ToLower().Contains(search))
+                    match = true;
+                else if (c.LastName != null && c.LastName.ToLower().Contains(search))
+                    match = true;
+                else if (c.Email != null && c.Email.ToLower().Contains(search))
+                    match = true;
+                else if (c.Phone != null && c.Phone.ToLower().Contains(search))
+                    match = true;
+                else if (c.City != null && c.City.ToLower().Contains(search))
+                    match = true;
+
+                if (match)
+                    result.Add(c);
+            }
+        }
+        else
+        {
+            result = allClients;
         }
 
-        dgvClients.DataSource = q
-            .OrderByDescending(c => c.ClientId)
-            .ToList();
-    }
+            // sortowanie malejąco po ClientId (ręcznie)
+            for (int i = 0; i < result.Count - 1; i++)
+            {
+                for (int j = i + 1; j < result.Count; j++)
+                {
+                    if (result[i].ClientId < result[j].ClientId)
+                    {
+                        Client temp = result[i];
+                        result[i] = result[j];
+                        result[j] = temp;
+                    }
+                }
+            }
 
-
+            dgvClients.DataSource = result;
+        }
 
     // Przechowuje ID aktualnie zaznaczonego klienta w tabeli
     private long? _selectedClientId = null;
-
-
 
     // Obsługuje przycisk wczytujący wszystkich klientów z bazy
     private void btnLoadClients_Click(object sender, EventArgs e)
     {
         try
         {
-            LoadClients();
+            LoadClients("");
         }
         catch (Exception ex)
         {
             MessageBox.Show("Błąd: " + ex.Message);
         }
     }
-
 
 
     // Dodaje nowego klienta do bazy danych po poprawnej walidacji danych
