@@ -107,7 +107,7 @@ public partial class MainForm : Form
             result = allClients;
         }
 
-            // sortowanie malejąco po ClientId (ręcznie)
+            // sortowanie malejąco po ClientId
             for (int i = 0; i < result.Count - 1; i++)
             {
                 for (int j = i + 1; j < result.Count; j++)
@@ -156,7 +156,7 @@ public partial class MainForm : Form
             // 2) Połączenie z bazą
             AppDbContext db = new AppDbContext();
 
-            // 3) Sprawdzenie czy email już istnieje (bez LINQ)
+            // 3) Sprawdzenie czy email już istnieje
             if (email != null && email.Trim() != "")
             {
                 List<Client> clients = db.Clients.ToList();
@@ -189,7 +189,7 @@ public partial class MainForm : Form
             client.City = city;
             client.Address = address;
             client.PostalCode = postalCode;
-            client.CreatedAt = DateTime.Now; // prosto (jeśli chcesz UTC, zmienimy)
+            client.CreatedAt = DateTime.Now;
 
             // 5) Zapis do bazy
             db.Clients.Add(client);
@@ -245,7 +245,7 @@ public partial class MainForm : Form
 
             AppDbContext db = new AppDbContext();
 
-            // BLOKADA: klient ma rezerwacje (bez LINQ)
+            // BLOKADA: klient ma rezerwacje
             List<Reservation> reservations = db.Reservations.ToList();
             for (int i = 0; i < reservations.Count; i++)
             {
@@ -265,7 +265,7 @@ public partial class MainForm : Form
             if (confirm != DialogResult.Yes)
                 return;
 
-            // Szukanie klienta (bez LINQ)
+            // Szukanie klienta
             List<Client> clients = db.Clients.ToList();
             Client client = null;
 
@@ -321,7 +321,7 @@ public partial class MainForm : Form
 
             AppDbContext db = new AppDbContext();
 
-            // sprawdzenie duplikatu email (bez LINQ)
+            // sprawdzenie duplikatu email
             if (email != null && email.Trim() != "")
             {
                 List<Client> all = db.Clients.ToList();
@@ -338,7 +338,7 @@ public partial class MainForm : Form
                 }
             }
 
-            // znalezienie klienta (bez LINQ)
+            // znalezienie klienta
             List<Client> clients = db.Clients.ToList();
             Client client = null;
 
