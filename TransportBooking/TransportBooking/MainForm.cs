@@ -235,25 +235,29 @@ public partial class MainForm : Form
                 return;
             }
 
-            var idObj = dgvClients.CurrentRow.Cells["ClientId"].Value;
-            if (idObj == null || !long.TryParse(idObj.ToString(), out long clientId))
+            object idObj = dgvClients.CurrentRow.Cells["ClientId"].Value;
+            long clientId;
+            if (idObj == null || !long.TryParse(idObj.ToString(), out clientId))
             {
                 MessageBox.Show("Nie udało się odczytać ID klienta.");
                 return;
             }
 
-            using var db = new AppDbContext();
+            AppDbContext db = new AppDbContext();
 
-            // BLOKADA: klient ma rezerwacje
-            bool hasReservations = db.Reservations.Any(r => r.ClientId == clientId);
-            if (hasReservations)
+            // BLOKADA: klient ma rezerwacje (bez LINQ)
+            List<Reservation> reservations = db.Reservations.ToList();
+            for (int i = 0; i < reservations.Count; i++)
             {
-                MessageBox.Show("Nie można usunąć klienta — ma przypisane rezerwacje.\nUsuń/zmień rezerwacje i spróbuj ponownie.");
-                return;
+                if (reservations[i].ClientId == clientId)
+                {
+                    MessageBox.Show("Nie można usunąć klienta — ma przypisane rezerwacje.\nUsuń/zmień rezerwacje i spróbuj ponownie.");
+                    return;
+                }
             }
 
-            var confirm = MessageBox.Show(
-                $"Czy na pewno usunąć klienta ID: {clientId}?",
+            DialogResult confirm = MessageBox.Show(
+                "Czy na pewno usunąć klienta ID: " + clientId + "?",
                 "Potwierdzenie usunięcia",
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Warning);
@@ -261,7 +265,19 @@ public partial class MainForm : Form
             if (confirm != DialogResult.Yes)
                 return;
 
-            var client = db.Clients.FirstOrDefault(c => c.ClientId == clientId);
+            // Szukanie klienta (bez LINQ)
+            List<Client> clients = db.Clients.ToList();
+            Client client = null;
+
+            for (int i = 0; i < clients.Count; i++)
+            {
+                if (clients[i].ClientId == clientId)
+                {
+                    client = clients[i];
+                    break;
+                }
+            }
+
             if (client == null)
             {
                 MessageBox.Show("Klient nie istnieje (może już został usunięty).");
@@ -281,6 +297,7 @@ public partial class MainForm : Form
             MessageBox.Show("Błąd: " + ex.Message);
         }
     }
+
 
 
 
