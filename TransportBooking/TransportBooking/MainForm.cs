@@ -1219,78 +1219,117 @@ public partial class MainForm : Form
    CRUD realizowane są z wykorzystaniem Entity Framework Core.
    ========================================================= */
 
-
-
     // Przechowuje ID aktualnie zaznaczonej rezerwacji w tabeli
     private long? _selectedReservationId = null;
-
-
 
     // Wczytuje listę klientów do ComboBox (wybór klienta dla rezerwacji)
     private void LoadClientsToReservationCombo()
     {
-        using var db = new AppDbContext();
+        AppDbContext db = new AppDbContext();
 
-        var clients = db.Clients
-            .AsNoTracking()
-            .OrderByDescending(c => c.ClientId)
-            .Select(c => new
-            {
-                c.ClientId,
-                Display = $"{c.FirstName} {c.LastName} | {c.Email}"
-            })
-            .ToList();
+        List<Client> clients = db.Clients.ToList();
+        List<KeyValuePair<long, string>> items = new List<KeyValuePair<long, string>>();
 
-        cmbResClient.DataSource = clients;
-        cmbResClient.DisplayMember = "Display";
-        cmbResClient.ValueMember = "ClientId";
+        // sortowanie malejąco po ID
+        for (int i = 0; i < clients.Count - 1; i++)
+            for (int j = i + 1; j < clients.Count; j++)
+                if (clients[i].ClientId < clients[j].ClientId)
+                {
+                    Client tmp = clients[i];
+                    clients[i] = clients[j];
+                    clients[j] = tmp;
+                }
+
+        // budowanie listy do ComboBox
+        for (int i = 0; i < clients.Count; i++)
+        {
+            Client c = clients[i];
+            string text = c.FirstName + " " + c.LastName + " | " + c.Email;
+            items.Add(new KeyValuePair<long, string>(c.ClientId, text));
+        }
+
+        cmbResClient.DataSource = items;
+        cmbResClient.DisplayMember = "Value";
+        cmbResClient.ValueMember = "Key";
     }
+
 
 
 
     // Wczytuje listę tras do ComboBox (wybór trasy dla rezerwacji)
+    // Wczytuje listę tras do ComboBox (wybór trasy dla rezerwacji)
     private void LoadRoutesToReservationCombo()
     {
-        using var db = new AppDbContext();
+        AppDbContext db = new AppDbContext();
 
-        var routes = db.Routes
-            .AsNoTracking()
-            .OrderByDescending(r => r.RouteId)
-            .Select(r => new
-            {
-                r.RouteId,
-                Display = $"{r.StartCity} -> {r.EndCity} | {r.DepartureTime} | {r.PricePerson} zł"
-            })
-            .ToList();
+        List<Route> routes = db.Routes.ToList();
+        List<KeyValuePair<long, string>> items = new List<KeyValuePair<long, string>>();
 
-        cmbResRoute.DataSource = routes;
-        cmbResRoute.DisplayMember = "Display";
-        cmbResRoute.ValueMember = "RouteId";
-    }
+        // sortowanie malejąco po ID
+        for (int i = 0; i < routes.Count - 1; i++)
+            for (int j = i + 1; j < routes.Count; j++)
+                if (routes[i].RouteId < routes[j].RouteId)
+                {
+                    Route tmp = routes[i];
+                    routes[i] = routes[j];
+                    routes[j] = tmp;
+                }
 
-
-
-    // Ładuje listę rezerwacji z bazy danych (opcjonalnie z filtrem wyszukiwania)
-    private void LoadReservations(string? filter = null)
-    {
-        using var db = new AppDbContext();
-
-        var q = db.Reservations.AsNoTracking().AsQueryable();
-
-        if (!string.IsNullOrWhiteSpace(filter))
+        // budowanie listy do ComboBox
+        for (int i = 0; i < routes.Count; i++)
         {
-            filter = filter.Trim().ToLower();
-
-            q = q.Where(r =>
-                r.ServiceType.ToLower().Contains(filter) ||
-                r.Status.ToLower().Contains(filter)
-            );
+            Route r = routes[i];
+            string text = r.StartCity + " -> " + r.EndCity + " | " + r.DepartureTime + " | " + r.PricePerson + " zł";
+            items.Add(new KeyValuePair<long, string>(r.RouteId, text));
         }
 
-        dgvReservations.DataSource = q
-            .OrderByDescending(r => r.ReservationId)
-            .ToList();
+        cmbResRoute.DataSource = items;
+        cmbResRoute.DisplayMember = "Value";
+        cmbResRoute.ValueMember = "Key";
     }
+
+    // Ładuje listę rezerwacji z bazy danych (opcjonalnie z filtrem wyszukiwania)
+    private void LoadReservations(string filter)
+    {
+        AppDbContext db = new AppDbContext();
+
+        List<Reservation> all = db.Reservations.ToList();
+        List<Reservation> result = new List<Reservation>();
+
+        if (filter != null) filter = filter.Trim().ToLower();
+
+        // filtrowanie
+        if (filter != null && filter != "")
+        {
+            for (int i = 0; i < all.Count; i++)
+            {
+                Reservation r = all[i];
+
+                string type = (r.ServiceType == null) ? "" : r.ServiceType.ToLower();
+                string status = (r.Status == null) ? "" : r.Status.ToLower();
+
+                if (type.Contains(filter) || status.Contains(filter))
+                    result.Add(r);
+            }
+        }
+        else
+        {
+            result = all;
+        }
+
+        // sortowanie malejąco po ReservationId
+        for (int i = 0; i < result.Count - 1; i++)
+            for (int j = i + 1; j < result.Count; j++)
+                if (result[i].ReservationId < result[j].ReservationId)
+                {
+                    Reservation tmp = result[i];
+                    result[i] = result[j];
+                    result[j] = tmp;
+                }
+
+        dgvReservations.DataSource = result;
+    }
+
 
 
 
@@ -1301,7 +1340,7 @@ public partial class MainForm : Form
         {
             LoadClientsToReservationCombo();
             LoadRoutesToReservationCombo();
-            LoadReservations();
+            LoadReservations("");
         }
         catch (Exception ex)
         {
@@ -1333,28 +1372,40 @@ public partial class MainForm : Form
         {
             if (dgvReservations.CurrentRow == null) return;
 
-            _selectedReservationId = Convert.ToInt64(dgvReservations.CurrentRow.Cells["ReservationId"].Value);
+            object idObj = dgvReservations.CurrentRow.Cells["ReservationId"].Value;
+            if (idObj == null) return;
+            _selectedReservationId = Convert.ToInt64(idObj);
 
-            // ustaw klienta i trasę
-            var clientIdObj = dgvReservations.CurrentRow.Cells["ClientId"].Value;
-            var routeIdObj = dgvReservations.CurrentRow.Cells["RouteId"].Value;
-
+            object clientIdObj = dgvReservations.CurrentRow.Cells["ClientId"].Value;
             if (clientIdObj != null) cmbResClient.SelectedValue = Convert.ToInt64(clientIdObj);
+
+            object routeIdObj = dgvReservations.CurrentRow.Cells["RouteId"].Value;
             if (routeIdObj != null) cmbResRoute.SelectedValue = Convert.ToInt64(routeIdObj);
 
-            // service type / status
-            cmbServiceType.SelectedItem = dgvReservations.CurrentRow.Cells["ServiceType"].Value?.ToString() ?? "osoby";
-            cmbResStatus.SelectedItem = dgvReservations.CurrentRow.Cells["Status"].Value?.ToString() ?? "new";
+            cmbServiceType.SelectedItem = GetResCellText("ServiceType", "PERSON");
+            cmbResStatus.SelectedItem = GetResCellText("Status", "NEW");
 
-            // created_at (UTC->Local jeśli zapisujesz UTC)
-            if (dgvReservations.CurrentRow.Cells["CreatedAt"].Value is DateTime dt)
-                dtpResCreatedAt.Value = dt.Kind == DateTimeKind.Utc ? dt.ToLocalTime() : dt;
+            object createdObj = dgvReservations.CurrentRow.Cells["CreatedAt"].Value;
+            if (createdObj != null) dtpResCreatedAt.Value = Convert.ToDateTime(createdObj);
         }
         catch (Exception ex)
         {
             MessageBox.Show("Błąd: " + ex.Message);
         }
     }
+
+    // Pobiera tekst z tabeli rezerwacji, a jeśli brak to zwraca wartość domyślną
+    private string GetResCellText(string columnName, string defaultValue)
+    {
+        object value = dgvReservations.CurrentRow.Cells[columnName].Value;
+        if (value == null) return defaultValue;
+
+        string text = value.ToString();
+        if (text == null || text.Trim() == "") return defaultValue;
+
+        return text;
+    }
+
 
 
 
@@ -1457,7 +1508,7 @@ public partial class MainForm : Form
             if (res == null)
             {
                 MessageBox.Show("Rezerwacja nie istnieje.");
-                LoadReservations();
+                LoadReservations("");
                 return;
             }
 
@@ -1513,7 +1564,7 @@ public partial class MainForm : Form
 
             MessageBox.Show("Usunięto rezerwację ✅");
             btnClearReservationForm_Click(sender, e);
-            LoadReservations();
+            LoadReservations("");
         }
         catch (Exception ex)
         {
