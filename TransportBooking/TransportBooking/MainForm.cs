@@ -196,7 +196,7 @@ public partial class MainForm : Form
             db.SaveChanges();
 
             // 6) Info + czyszczenie formularza + odświeżenie listy
-            MessageBox.Show("Dodano klienta ✅ ID: " + client.ClientId);
+            MessageBox.Show("Dodano klienta  ID: " + client.ClientId);
             btnClearClientForm_Click(sender, e);
             LoadClients(txtSearchClient.Text);
         }
@@ -288,7 +288,7 @@ public partial class MainForm : Form
             db.Clients.Remove(client);
             db.SaveChanges();
 
-            MessageBox.Show("Usunięto klienta ✅");
+            MessageBox.Show("Usunięto klienta ");
             btnClearClientForm_Click(sender, e);
             LoadClients(txtSearchClient.Text);
         }
@@ -369,7 +369,7 @@ public partial class MainForm : Form
 
             db.SaveChanges();
 
-            MessageBox.Show("Zapisano zmiany ✅");
+            MessageBox.Show("Zapisano zmiany ");
             LoadClients(txtSearchClient.Text);
         }
         catch (Exception ex)
@@ -711,7 +711,7 @@ public partial class MainForm : Form
             db.Vehicles.Add(vehicle);
             db.SaveChanges();
 
-            MessageBox.Show("Dodano pojazd ✅");
+            MessageBox.Show("Dodano pojazd ");
             btnClearVehicleForm_Click(sender, e);
             LoadVehicles(txtSearchVehicle.Text);
         }
@@ -785,7 +785,7 @@ public partial class MainForm : Form
 
             db.SaveChanges();
 
-            MessageBox.Show("Zapisano zmiany ✅");
+            MessageBox.Show("Zapisano zmiany ");
             LoadVehicles(txtSearchVehicle.Text);
         }
         catch (Exception ex)
@@ -832,7 +832,7 @@ public partial class MainForm : Form
             db.Vehicles.Remove(vehicle);
             db.SaveChanges();
 
-            MessageBox.Show("Usunięto pojazd ✅");
+            MessageBox.Show("Usunięto pojazd ");
             btnClearVehicleForm_Click(sender, e);
             LoadVehicles("");
         }
@@ -1094,7 +1094,7 @@ public partial class MainForm : Form
             db.Routes.Add(route);
             db.SaveChanges();
 
-            MessageBox.Show("Dodano trasę ✅");
+            MessageBox.Show("Dodano trasę ");
             btnClearRouteForm_Click(sender, e);
             LoadRoutes(txtSearchRoute.Text);
         }
@@ -1134,7 +1134,7 @@ public partial class MainForm : Form
 
             db.SaveChanges();
 
-            MessageBox.Show("Zapisano zmiany ✅");
+            MessageBox.Show("Zapisano zmiany ");
             LoadRoutes(txtSearchRoute.Text);
         }
         catch (Exception ex)
@@ -1177,7 +1177,7 @@ public partial class MainForm : Form
             db.Routes.Remove(route);
             db.SaveChanges();
 
-            MessageBox.Show("Usunięto trasę ✅");
+            MessageBox.Show("Usunięto trasę ");
             btnClearRouteForm_Click(sender, e);
             LoadRoutes("");
         }
@@ -1470,7 +1470,7 @@ public partial class MainForm : Form
             db.Reservations.Add(res);
             db.SaveChanges();
 
-            MessageBox.Show("Dodano rezerwację ✅");
+            MessageBox.Show("Dodano rezerwację ");
             btnClearReservationForm_Click(sender, e);
             LoadReservations(txtSearchReservation.Text);
         }
@@ -1509,7 +1509,7 @@ public partial class MainForm : Form
 
         db.SaveChanges();
 
-        MessageBox.Show("Zapisano zmiany ✅");
+        MessageBox.Show("Zapisano zmiany ");
         LoadReservations(txtSearchReservation.Text);
     }
 
@@ -1557,7 +1557,7 @@ public partial class MainForm : Form
         db.Reservations.Remove(res);
         db.SaveChanges();
 
-        MessageBox.Show("Usunięto rezerwację ✅");
+        MessageBox.Show("Usunięto rezerwację ");
         btnClearReservationForm_Click(sender, e);
         LoadReservations("");
     }
