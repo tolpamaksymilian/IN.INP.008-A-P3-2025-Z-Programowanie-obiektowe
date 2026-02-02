@@ -306,30 +306,51 @@ public partial class MainForm : Form
     {
         try
         {
-            if (_selectedClientId is null)
+            if (_selectedClientId == null)
             {
                 MessageBox.Show("Najpierw zaznacz klienta w tabeli.");
                 return;
             }
 
-            if (!ValidateClientInputs(out var firstName, out var lastName,
-                    out var email, out var phone, out var city, out var address, out var postalCode))
+            // walidacja
+            string firstName, lastName, email, phone, city, address, postalCode;
+            if (!ValidateClientInputs(out firstName, out lastName, out email, out phone, out city, out address, out postalCode))
                 return;
 
-            using var db = new AppDbContext();
+            long clientId = _selectedClientId.Value;
 
-            // duplikat email, ale z wykluczeniem aktualnie edytowanego klienta
-            if (email is not null)
+            AppDbContext db = new AppDbContext();
+
+            // sprawdzenie duplikatu email (bez LINQ)
+            if (email != null && email.Trim() != "")
             {
-                bool exists = db.Clients.Any(c => c.Email == email && c.ClientId != _selectedClientId.Value);
-                if (exists)
+                List<Client> all = db.Clients.ToList();
+
+                for (int i = 0; i < all.Count; i++)
                 {
-                    MessageBox.Show("Inny klient ma już taki adres e-mail.");
-                    return;
+                    Client c = all[i];
+
+                    if (c.Email != null && c.Email == email && c.ClientId != clientId)
+                    {
+                        MessageBox.Show("Inny klient ma już taki adres e-mail.");
+                        return;
+                    }
                 }
             }
 
-            var client = db.Clients.FirstOrDefault(c => c.ClientId == _selectedClientId.Value);
+            // znalezienie klienta (bez LINQ)
+            List<Client> clients = db.Clients.ToList();
+            Client client = null;
+
+            for (int i = 0; i < clients.Count; i++)
+            {
+                if (clients[i].ClientId == clientId)
+                {
+                    client = clients[i];
+                    break;
+                }
+            }
+
             if (client == null)
             {
                 MessageBox.Show("Klient nie istnieje (mógł zostać usunięty).");
@@ -337,6 +358,7 @@ public partial class MainForm : Form
                 return;
             }
 
+            // aktualizacja pól
             client.FirstName = firstName;
             client.LastName = lastName;
             client.Email = email;
@@ -355,6 +377,7 @@ public partial class MainForm : Form
             MessageBox.Show("Błąd: " + ex.Message);
         }
     }
+
 
 
 
