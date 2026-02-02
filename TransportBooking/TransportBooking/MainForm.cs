@@ -140,7 +140,6 @@ public partial class MainForm : Form
         }
     }
 
-
     // Dodaje nowego klienta do bazy danych po poprawnej walidacji danych
     private void btnAddClient_Click(object sender, EventArgs e)
     {
@@ -206,9 +205,6 @@ public partial class MainForm : Form
         }
     }
 
-
-
-
     // Wyszukuje klientów na podstawie wpisanego tekstu (imię, nazwisko, email itp.)
     private void btnSearchClient_Click(object sender, EventArgs e)
     {
@@ -221,8 +217,6 @@ public partial class MainForm : Form
             MessageBox.Show("Błąd: " + ex.Message);
         }
     }
-
-
 
     // Usuwa zaznaczonego klienta z bazy danych (jeśli nie ma rezerwacji)
     private void btnDeleteClient_Click(object sender, EventArgs e)
@@ -297,9 +291,6 @@ public partial class MainForm : Form
             MessageBox.Show("Błąd: " + ex.Message);
         }
     }
-
-
-
 
     // Aktualizuje dane zaznaczonego klienta w bazie danych
     private void btnUpdateClient_Click(object sender, EventArgs e)
@@ -378,9 +369,6 @@ public partial class MainForm : Form
         }
     }
 
-
-
-
     // Czyści formularz klienta oraz resetuje zaznaczenie w tabeli
     private void btnClearClientForm_Click(object sender, EventArgs e)
     {
@@ -396,8 +384,6 @@ public partial class MainForm : Form
 
         dgvClients.ClearSelection();
     }
-
-
 
     // Obsługuje kliknięcie w tabeli klientów i uzupełnia formularz danymi klienta
     private void dgvClients_CellClick(object sender, DataGridViewCellEventArgs e)
@@ -435,7 +421,6 @@ public partial class MainForm : Form
 
         return value.ToString();
     }
-
 
     // Waliduje dane klienta (wspólna metoda dla dodawania i edycji)
     private bool ValidateClientInputs(out string firstName, out string lastName,
@@ -520,7 +505,6 @@ public partial class MainForm : Form
         return true;
     }
 
-
     /* =========================================================
    SEKCJA: POJAZDY
    ---------------------------------------------------------
@@ -586,9 +570,6 @@ public partial class MainForm : Form
         dgvVehicles.DataSource = result;
     }
 
-
-
-
     // Obsługuje przycisk wczytujący wszystkie pojazdy z bazy danych
     private void btnLoadVehicles_Click_1(object sender, EventArgs e)
     {
@@ -615,8 +596,6 @@ public partial class MainForm : Form
         }
     }
 
-
-
     // Obsługuje kliknięcie w tabeli pojazdów i uzupełnia formularz danymi pojazdu
     private void dgvVehicles_CellClick(object sender, DataGridViewCellEventArgs e)
     {
@@ -642,7 +621,6 @@ public partial class MainForm : Form
         if (value == null) return "";
         return value.ToString();
     }
-
 
     // Waliduje dane pojazdu (numer rejestracyjny, model, liczba miejsc, status)
     private bool ValidateVehicleInputs(out string plate, out string model, out int seats, out bool active)
@@ -673,8 +651,6 @@ public partial class MainForm : Form
 
         return true;
     }
-
-
 
     // Dodaje nowy pojazd do bazy danych po poprawnej walidacji danych
     private void btnAddVehicle_Click(object sender, EventArgs e)
@@ -720,9 +696,6 @@ public partial class MainForm : Form
             MessageBox.Show("Błąd: " + ex.Message);
         }
     }
-
-
-
 
     // Aktualizuje dane zaznaczonego pojazdu w bazie danych
     private void btnUpdateVehicle_Click(object sender, EventArgs e)
@@ -794,10 +767,6 @@ public partial class MainForm : Form
         }
     }
 
-
-
-
-    // Usuwa zaznaczony pojazd z bazy danych (jeśli nie jest przypisany do tras)
     // Usuwa zaznaczony pojazd z bazy danych (jeśli nie jest przypisany do tras)
     private void btnDeleteVehicle_Click(object sender, EventArgs e)
     {
@@ -842,9 +811,6 @@ public partial class MainForm : Form
         }
     }
 
-
-
-
     // Czyści formularz pojazdu oraz resetuje zaznaczenie w tabeli
     private void btnClearVehicleForm_Click(object sender, EventArgs e)
     {
@@ -857,8 +823,6 @@ public partial class MainForm : Form
 
         dgvVehicles.ClearSelection();
     }
-
-
 
     /* =========================================================
    SEKCJA: TRASY / KURSY
@@ -878,11 +842,8 @@ public partial class MainForm : Form
    CRUD realizowane są z wykorzystaniem Entity Framework Core.
    ========================================================= */
 
-
-
     // Przechowuje ID aktualnie zaznaczonej trasy w tabeli
     private long? _selectedRouteId = null;
-
 
     // Wczytuje listę pojazdów do ComboBox (wybór pojazdu dla trasy)
     private void LoadVehiclesToRouteCombo()
@@ -914,8 +875,6 @@ public partial class MainForm : Form
         cmbRouteVehicle.DisplayMember = "Value";
         cmbRouteVehicle.ValueMember = "Key";
     }
-
-
 
     // Ładuje listę tras z bazy danych (opcjonalnie z filtrem wyszukiwania)
     private void LoadRoutes(string filter)
@@ -959,9 +918,6 @@ public partial class MainForm : Form
         dgvRoutes.DataSource = result;
     }
 
-
-
-
     // Obsługuje przycisk wczytujący wszystkie trasy oraz pojazdy do ComboBox
     private void btnLoadRoutes_Click(object sender, EventArgs e)
     {
@@ -976,8 +932,6 @@ public partial class MainForm : Form
         }
     }
 
-
-
     // Wyszukuje trasy na podstawie miasta początkowego lub docelowego
     private void btnSearchRoute_Click(object sender, EventArgs e)
     {
@@ -990,8 +944,6 @@ public partial class MainForm : Form
             MessageBox.Show("Błąd: " + ex.Message);
         }
     }
-
-
 
     // Obsługuje kliknięcie w tabeli tras i uzupełnia formularz danymi trasy
     private void dgvRoutes_CellClick(object sender, DataGridViewCellEventArgs e)
@@ -1065,9 +1017,6 @@ public partial class MainForm : Form
 
         return true;
     }
-
-
-
 
     // Dodaje nową trasę do bazy danych po poprawnej walidacji danych
     private void btnAddRoute_Click(object sender, EventArgs e)
@@ -1253,9 +1202,6 @@ public partial class MainForm : Form
         cmbResClient.ValueMember = "Key";
     }
 
-
-
-
     // Wczytuje listę tras do ComboBox (wybór trasy dla rezerwacji)
     // Wczytuje listę tras do ComboBox (wybór trasy dla rezerwacji)
     private void LoadRoutesToReservationCombo()
@@ -1330,9 +1276,6 @@ public partial class MainForm : Form
         dgvReservations.DataSource = result;
     }
 
-
-
-
     // Obsługuje przycisk wczytujący wszystkie rezerwacje oraz dane do ComboBoxów
     private void btnLoadReservations_Click(object sender, EventArgs e)
     {
@@ -1348,8 +1291,6 @@ public partial class MainForm : Form
         }
     }
 
-
-
     // Wyszukuje rezerwacje na podstawie typu usługi lub statusu
     private void btnSearchReservation_Click(object sender, EventArgs e)
     {
@@ -1362,8 +1303,6 @@ public partial class MainForm : Form
             MessageBox.Show("Błąd: " + ex.Message);
         }
     }
-
-
 
     // Obsługuje kliknięcie w tabeli rezerwacji i uzupełnia formularz danymi rezerwacji
     private void dgvReservations_CellClick(object sender, DataGridViewCellEventArgs e)
@@ -1405,8 +1344,6 @@ public partial class MainForm : Form
 
         return text;
     }
-
-
 
 
     // Waliduje dane rezerwacji (klient, trasa, typ usługi, status, data)
@@ -1512,9 +1449,6 @@ public partial class MainForm : Form
         MessageBox.Show("Zapisano zmiany ");
         LoadReservations(txtSearchReservation.Text);
     }
-
-
-
 
     // Usuwa zaznaczoną rezerwację z bazy danych (jeśli brak powiązań)
     private void btnDeleteReservation_Click(object sender, EventArgs e)
@@ -1697,8 +1631,6 @@ public partial class MainForm : Form
 
         return text;
     }
-
-
 
     /* =========================================================
    SEKCJA: POŁĄCZENIE Z BAZĄ DANYCH
