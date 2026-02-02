@@ -592,9 +592,6 @@ public partial class MainForm : Form
     // Obsługuje przycisk wczytujący wszystkie pojazdy z bazy danych
     private void btnLoadVehicles_Click_1(object sender, EventArgs e)
     {
-        MessageBox.Show("Klik działa");
-
-
         try
         {
             LoadVehicles("");
@@ -604,8 +601,6 @@ public partial class MainForm : Form
             MessageBox.Show("Błąd: " + ex.Message);
         }
     }
-
-
 
     // Wyszukuje pojazdy na podstawie numeru rejestracyjnego lub modelu
     private void btnSearchVehicle_Click(object sender, EventArgs e)
@@ -627,14 +622,26 @@ public partial class MainForm : Form
     {
         if (dgvVehicles.CurrentRow == null) return;
 
-        _selectedVehicleId = Convert.ToInt64(dgvVehicles.CurrentRow.Cells["VehicleId"].Value);
+        object idObj = dgvVehicles.CurrentRow.Cells["VehicleId"].Value;
+        if (idObj == null) return;
 
-        txtPlateNumber.Text = dgvVehicles.CurrentRow.Cells["PlateNumber"].Value?.ToString() ?? "";
-        txtVehicleModel.Text = dgvVehicles.CurrentRow.Cells["Model"].Value?.ToString() ?? "";
-        txtSeats.Text = dgvVehicles.CurrentRow.Cells["Seats"].Value?.ToString() ?? "";
-        chkVehicleActive.Checked = Convert.ToBoolean(dgvVehicles.CurrentRow.Cells["Active"].Value);
+        _selectedVehicleId = Convert.ToInt64(idObj);
+
+        txtPlateNumber.Text = GetVehicleCellText("PlateNumber");
+        txtVehicleModel.Text = GetVehicleCellText("Model");
+        txtSeats.Text = GetVehicleCellText("Seats");
+
+        object activeObj = dgvVehicles.CurrentRow.Cells["Active"].Value;
+        chkVehicleActive.Checked = (activeObj != null && Convert.ToBoolean(activeObj));
     }
 
+    // Proste pobranie tekstu z komórki
+    private string GetVehicleCellText(string columnName)
+    {
+        object value = dgvVehicles.CurrentRow.Cells[columnName].Value;
+        if (value == null) return "";
+        return value.ToString();
+    }
 
 
     // Waliduje dane pojazdu (numer rejestracyjny, model, liczba miejsc, status)
@@ -674,25 +681,32 @@ public partial class MainForm : Form
     {
         try
         {
-            if (!ValidateVehicleInputs(out var plate, out var model, out var seats, out var active))
+            string plate, model;
+            int seats;
+            bool active;
+
+            if (!ValidateVehicleInputs(out plate, out model, out seats, out active))
                 return;
 
-            using var db = new AppDbContext();
+            AppDbContext db = new AppDbContext();
 
-            bool exists = db.Vehicles.Any(v => v.PlateNumber == plate);
-            if (exists)
+            // sprawdzenie czy pojazd już istnieje
+            List<Vehicle> vehicles = db.Vehicles.ToList();
+            for (int i = 0; i < vehicles.Count; i++)
             {
-                MessageBox.Show("Pojazd z takim numerem rejestracyjnym już istnieje.");
-                return;
+                if (vehicles[i].PlateNumber == plate)
+                {
+                    MessageBox.Show("Pojazd z takim numerem rejestracyjnym już istnieje.");
+                    return;
+                }
             }
 
-            var vehicle = new Vehicle
-            {
-                PlateNumber = plate,
-                Model = model,
-                Seats = seats,
-                Active = active
-            };
+            // dodanie pojazdu
+            Vehicle vehicle = new Vehicle();
+            vehicle.PlateNumber = plate;
+            vehicle.Model = model;
+            vehicle.Seats = seats;
+            vehicle.Active = active;
 
             db.Vehicles.Add(vehicle);
             db.SaveChanges();
@@ -709,32 +723,53 @@ public partial class MainForm : Form
 
 
 
+
     // Aktualizuje dane zaznaczonego pojazdu w bazie danych
     private void btnUpdateVehicle_Click(object sender, EventArgs e)
     {
         try
         {
-            if (_selectedVehicleId is null)
+            if (_selectedVehicleId == null)
             {
                 MessageBox.Show("Zaznacz pojazd w tabeli.");
                 return;
             }
 
-            if (!ValidateVehicleInputs(out var plate, out var model, out var seats, out var active))
+            string plate, model;
+            int seats;
+            bool active;
+
+            if (!ValidateVehicleInputs(out plate, out model, out seats, out active))
                 return;
 
-            using var db = new AppDbContext();
+            long vehicleId = _selectedVehicleId.Value;
 
-            bool exists = db.Vehicles.Any(v =>
-                v.PlateNumber == plate && v.VehicleId != _selectedVehicleId.Value);
+            AppDbContext db = new AppDbContext();
+            List<Vehicle> vehicles = db.Vehicles.ToList();
 
-            if (exists)
+            // sprawdzenie duplikatu numeru rejestracyjnego
+            for (int i = 0; i < vehicles.Count; i++)
             {
-                MessageBox.Show("Inny pojazd ma już taki numer rejestracyjny.");
-                return;
+                Vehicle v = vehicles[i];
+
+                if (v.PlateNumber == plate && v.VehicleId != vehicleId)
+                {
+                    MessageBox.Show("Inny pojazd ma już taki numer rejestracyjny.");
+                    return;
+                }
             }
 
-            var vehicle = db.Vehicles.FirstOrDefault(v => v.VehicleId == _selectedVehicleId.Value);
+            // znalezienie pojazdu
+            Vehicle vehicle = null;
+            for (int i = 0; i < vehicles.Count; i++)
+            {
+                if (vehicles[i].VehicleId == vehicleId)
+                {
+                    vehicle = vehicles[i];
+                    break;
+                }
+            }
+
             if (vehicle == null)
             {
                 MessageBox.Show("Pojazd nie istnieje.");
@@ -742,6 +777,7 @@ public partial class MainForm : Form
                 return;
             }
 
+            // aktualizacja danych
             vehicle.PlateNumber = plate;
             vehicle.Model = model;
             vehicle.Seats = seats;
@@ -760,35 +796,39 @@ public partial class MainForm : Form
 
 
 
+
+    // Usuwa zaznaczony pojazd z bazy danych (jeśli nie jest przypisany do tras)
     // Usuwa zaznaczony pojazd z bazy danych (jeśli nie jest przypisany do tras)
     private void btnDeleteVehicle_Click(object sender, EventArgs e)
     {
         try
         {
-            if (_selectedVehicleId is null)
-            {
-                MessageBox.Show("Zaznacz pojazd w tabeli.");
+            if (_selectedVehicleId == null) { MessageBox.Show("Zaznacz pojazd w tabeli."); return; }
+
+            AppDbContext db = new AppDbContext();
+            long vehicleId = _selectedVehicleId.Value;
+
+            // sprawdzenie czy pojazd jest używany w trasach
+            List<Route> routes = db.Routes.ToList();
+            for (int i = 0; i < routes.Count; i++)
+                if (routes[i].VehicleId == vehicleId)
+                {
+                    MessageBox.Show("Nie można usunąć pojazdu — jest przypisany do tras.");
+                    return;
+                }
+
+            if (MessageBox.Show("Czy na pewno usunąć pojazd?", "Potwierdzenie",
+                MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes)
                 return;
-            }
 
-            using var db = new AppDbContext();
+            // znalezienie pojazdu
+            List<Vehicle> vehicles = db.Vehicles.ToList();
+            Vehicle vehicle = null;
+            for (int i = 0; i < vehicles.Count; i++)
+                if (vehicles[i].VehicleId == vehicleId) { vehicle = vehicles[i]; break; }
 
-            bool inRoutes = db.Routes.Any(r => r.VehicleId == _selectedVehicleId.Value);
-            if (inRoutes)
-            {
-                MessageBox.Show("Nie można usunąć pojazdu — jest przypisany do tras.");
-                return;
-            }
+            if (vehicle == null) return;
 
-            var confirm = MessageBox.Show(
-                "Czy na pewno usunąć pojazd?",
-                "Potwierdzenie",
-                MessageBoxButtons.YesNo,
-                MessageBoxIcon.Warning);
-
-            if (confirm != DialogResult.Yes) return;
-
-            var vehicle = db.Vehicles.First(v => v.VehicleId == _selectedVehicleId.Value);
             db.Vehicles.Remove(vehicle);
             db.SaveChanges();
 
@@ -801,6 +841,7 @@ public partial class MainForm : Form
             MessageBox.Show("Błąd: " + ex.Message);
         }
     }
+
 
 
 
