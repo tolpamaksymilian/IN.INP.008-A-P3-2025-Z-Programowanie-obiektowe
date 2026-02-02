@@ -887,46 +887,78 @@ public partial class MainForm : Form
     // Wczytuje listę pojazdów do ComboBox (wybór pojazdu dla trasy)
     private void LoadVehiclesToRouteCombo()
     {
-        using var db = new AppDbContext();
+        AppDbContext db = new AppDbContext();
 
-        var vehicles = db.Vehicles
-            .AsNoTracking()
-            .OrderByDescending(v => v.VehicleId)
-            .Select(v => new
-            {
-                v.VehicleId,
-                Display = $"{v.PlateNumber} | {v.Model} | miejsca: {v.Seats}"
-            })
-            .ToList();
+        List<Vehicle> vehicles = db.Vehicles.ToList();
+        List<KeyValuePair<long, string>> items = new List<KeyValuePair<long, string>>();
 
-        cmbRouteVehicle.DataSource = vehicles;
-        cmbRouteVehicle.DisplayMember = "Display";
-        cmbRouteVehicle.ValueMember = "VehicleId";
+        // sortowanie malejąco po ID
+        for (int i = 0; i < vehicles.Count - 1; i++)
+            for (int j = i + 1; j < vehicles.Count; j++)
+                if (vehicles[i].VehicleId < vehicles[j].VehicleId)
+                {
+                    Vehicle tmp = vehicles[i];
+                    vehicles[i] = vehicles[j];
+                    vehicles[j] = tmp;
+                }
+
+        // budowanie listy do ComboBox
+        for (int i = 0; i < vehicles.Count; i++)
+        {
+            Vehicle v = vehicles[i];
+            string text = v.PlateNumber + " | " + v.Model + " | miejsca: " + v.Seats;
+            items.Add(new KeyValuePair<long, string>(v.VehicleId, text));
+        }
+
+        cmbRouteVehicle.DataSource = items;
+        cmbRouteVehicle.DisplayMember = "Value";
+        cmbRouteVehicle.ValueMember = "Key";
     }
 
 
 
     // Ładuje listę tras z bazy danych (opcjonalnie z filtrem wyszukiwania)
-    private void LoadRoutes(string? filter = null)
+    private void LoadRoutes(string filter)
     {
-        using var db = new AppDbContext();
+        AppDbContext db = new AppDbContext();
 
-        var q = db.Routes.AsNoTracking().AsQueryable();
+        List<Route> allRoutes = db.Routes.ToList();
+        List<Route> result = new List<Route>();
 
-        if (!string.IsNullOrWhiteSpace(filter))
+        if (filter != null) filter = filter.Trim().ToLower();
+
+        // filtrowanie
+        if (filter != null && filter != "")
         {
-            filter = filter.Trim().ToLower();
+            for (int i = 0; i < allRoutes.Count; i++)
+            {
+                Route r = allRoutes[i];
 
-            q = q.Where(r =>
-                r.StartCity.ToLower().Contains(filter) ||
-                r.EndCity.ToLower().Contains(filter)
-            );
+                string start = (r.StartCity == null) ? "" : r.StartCity.ToLower();
+                string end = (r.EndCity == null) ? "" : r.EndCity.ToLower();
+
+                if (start.Contains(filter) || end.Contains(filter))
+                    result.Add(r);
+            }
+        }
+        else
+        {
+            result = allRoutes;
         }
 
-        dgvRoutes.DataSource = q
-            .OrderByDescending(r => r.RouteId)
-            .ToList();
+        // sortowanie malejąco po RouteId
+        for (int i = 0; i < result.Count - 1; i++)
+            for (int j = i + 1; j < result.Count; j++)
+                if (result[i].RouteId < result[j].RouteId)
+                {
+                    Route tmp = result[i];
+                    result[i] = result[j];
+                    result[j] = tmp;
+                }
+
+        dgvRoutes.DataSource = result;
     }
+
 
 
 
@@ -936,7 +968,7 @@ public partial class MainForm : Form
         try
         {
             LoadVehiclesToRouteCombo();
-            LoadRoutes();
+            LoadVehicles("");
         }
         catch (Exception ex)
         {
@@ -968,19 +1000,20 @@ public partial class MainForm : Form
         {
             if (dgvRoutes.CurrentRow == null) return;
 
-            _selectedRouteId = Convert.ToInt64(dgvRoutes.CurrentRow.Cells["RouteId"].Value);
+            object idObj = dgvRoutes.CurrentRow.Cells["RouteId"].Value;
+            if (idObj == null) return;
 
-            txtStartCity.Text = dgvRoutes.CurrentRow.Cells["StartCity"].Value?.ToString() ?? "";
-            txtEndCity.Text = dgvRoutes.CurrentRow.Cells["EndCity"].Value?.ToString() ?? "";
-            txtPricePerson.Text = dgvRoutes.CurrentRow.Cells["PricePerson"].Value?.ToString() ?? "";
+            _selectedRouteId = Convert.ToInt64(idObj);
 
-            if (dgvRoutes.CurrentRow.Cells["DepartureTime"].Value is DateTime dt)
-                dtpDepartureTime.Value = dt;
+            txtStartCity.Text = GetRouteCellText("StartCity");
+            txtEndCity.Text = GetRouteCellText("EndCity");
+            txtPricePerson.Text = GetRouteCellText("PricePerson");
 
-            // ustaw pojazd w ComboBox
-            var vehicleIdObj = dgvRoutes.CurrentRow.Cells["VehicleId"].Value;
-            if (vehicleIdObj != null)
-                cmbRouteVehicle.SelectedValue = Convert.ToInt64(vehicleIdObj);
+            object depObj = dgvRoutes.CurrentRow.Cells["DepartureTime"].Value;
+            if (depObj != null) dtpDepartureTime.Value = Convert.ToDateTime(depObj);
+
+            object vehicleIdObj = dgvRoutes.CurrentRow.Cells["VehicleId"].Value;
+            if (vehicleIdObj != null) cmbRouteVehicle.SelectedValue = Convert.ToInt64(vehicleIdObj);
         }
         catch (Exception ex)
         {
@@ -988,7 +1021,13 @@ public partial class MainForm : Form
         }
     }
 
-
+    // Pobiera tekst z danej kolumny w zaznaczonym wierszu tabeli tras
+    private string GetRouteCellText(string columnName)
+    {
+        object value = dgvRoutes.CurrentRow.Cells[columnName].Value;
+        if (value == null) return "";
+        return value.ToString();
+    }
 
     // Waliduje dane trasy (pojazd, miasta, data wyjazdu, cena)
     private bool ValidateRouteInputs(out long vehicleId, out string start, out string end, out DateTime departure, out decimal pricePerson)
@@ -1091,7 +1130,7 @@ public partial class MainForm : Form
             if (route == null)
             {
                 MessageBox.Show("Trasa nie istnieje.");
-                LoadRoutes();
+                LoadVehicles("");
                 return;
             }
 
@@ -1148,7 +1187,7 @@ public partial class MainForm : Form
 
             MessageBox.Show("Usunięto trasę ✅");
             btnClearRouteForm_Click(sender, e);
-            LoadRoutes();
+            LoadVehicles("");
         }
         catch (Exception ex)
         {
