@@ -1455,19 +1455,17 @@ public partial class MainForm : Form
     {
         try
         {
-            if (!ValidateReservationInputs(out var clientId, out var routeId, out var serviceType, out var status, out var createdAtUtc))
-                return;
+            long clientId, routeId; string serviceType, status; DateTime createdAtUtc;
+            if (!ValidateReservationInputs(out clientId, out routeId, out serviceType, out status, out createdAtUtc)) return;
 
-            using var db = new AppDbContext();
+            AppDbContext db = new AppDbContext();
 
-            var res = new Reservation
-            {
-                ClientId = clientId,
-                RouteId = routeId,
-                ServiceType = serviceType,
-                Status = status,
-                CreatedAt = createdAtUtc
-            };
+            Reservation res = new Reservation();
+            res.ClientId = clientId;
+            res.RouteId = routeId;
+            res.ServiceType = serviceType;
+            res.Status = status;
+            res.CreatedAt = createdAtUtc;
 
             db.Reservations.Add(res);
             db.SaveChanges();
@@ -1478,95 +1476,91 @@ public partial class MainForm : Form
         }
         catch (Exception ex)
         {
-            MessageBox.Show("Błąd: " + (ex.InnerException?.Message ?? ex.Message));
+            string msg = (ex.InnerException != null) ? ex.InnerException.Message : ex.Message;
+            MessageBox.Show("Błąd: " + msg);
         }
     }
+
 
     // Aktualizuje dane zaznaczonej rezerwacji w bazie danych
     private void btnUpdateReservation_Click(object sender, EventArgs e)
     {
-        try
-        {
-            if (_selectedReservationId is null)
-            {
-                MessageBox.Show("Zaznacz rezerwację w tabeli.");
-                return;
-            }
+        if (_selectedReservationId == null) { MessageBox.Show("Zaznacz rezerwację w tabeli."); return; }
 
-            if (!ValidateReservationInputs(out var clientId, out var routeId, out var serviceType, out var status, out var createdAtUtc))
-                return;
+        long clientId, routeId; string serviceType, status; DateTime createdAtUtc;
+        if (!ValidateReservationInputs(out clientId, out routeId, out serviceType, out status, out createdAtUtc)) return;
 
-            using var db = new AppDbContext();
+        AppDbContext db = new AppDbContext();
+        long resId = _selectedReservationId.Value;
 
-            var res = db.Reservations.FirstOrDefault(r => r.ReservationId == _selectedReservationId.Value);
-            if (res == null)
-            {
-                MessageBox.Show("Rezerwacja nie istnieje.");
-                LoadReservations("");
-                return;
-            }
+        List<Reservation> reservations = db.Reservations.ToList();
+        Reservation res = null;
 
-            res.ClientId = clientId;
-            res.RouteId = routeId;
-            res.ServiceType = serviceType;
-            res.Status = status;
-            res.CreatedAt = createdAtUtc;
+        for (int i = 0; i < reservations.Count; i++)
+            if (reservations[i].ReservationId == resId) { res = reservations[i]; break; }
 
-            db.SaveChanges();
+            if (res == null) { MessageBox.Show("Rezerwacja nie istnieje."); LoadReservations(""); return; }
 
-            MessageBox.Show("Zapisano zmiany ✅");
-            LoadReservations(txtSearchReservation.Text);
-        }
-        catch (Exception ex)
-        {
-            MessageBox.Show("Błąd: " + (ex.InnerException?.Message ?? ex.Message));
-        }
+        res.ClientId = clientId;
+        res.RouteId = routeId;
+        res.ServiceType = serviceType;
+        res.Status = status;
+        res.CreatedAt = createdAtUtc;
+
+        db.SaveChanges();
+
+        MessageBox.Show("Zapisano zmiany ✅");
+        LoadReservations(txtSearchReservation.Text);
     }
+
 
 
 
     // Usuwa zaznaczoną rezerwację z bazy danych (jeśli brak powiązań)
     private void btnDeleteReservation_Click(object sender, EventArgs e)
     {
-        try
-        {
-            if (_selectedReservationId is null)
-            {
-                MessageBox.Show("Zaznacz rezerwację w tabeli.");
-                return;
-            }
+        if (_selectedReservationId == null) { MessageBox.Show("Zaznacz rezerwację w tabeli."); return; }
 
-            using var db = new AppDbContext();
+        AppDbContext db = new AppDbContext();
+        long resId = _selectedReservationId.Value;
 
-            bool hasPayments = db.Payments.Any(p => p.ReservationId == _selectedReservationId.Value);
-            bool hasPackages = db.Packages.Any(p => p.ReservationId == _selectedReservationId.Value);
-
-            if (hasPayments || hasPackages)
+        // sprawdzenie powiązań z płatnościami
+        List<Payment> payments = db.Payments.ToList();
+        for (int i = 0; i < payments.Count; i++)
+            if (payments[i].ReservationId == resId)
             {
                 MessageBox.Show("Nie można usunąć rezerwacji — istnieją powiązane płatności lub paczki.");
                 return;
             }
 
-            var confirm = MessageBox.Show("Czy na pewno usunąć rezerwację?", "Potwierdzenie",
-                MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+        // sprawdzenie powiązań z paczkami
+        List<Package> packages = db.Packages.ToList();
+        for (int i = 0; i < packages.Count; i++)
+            if (packages[i].ReservationId == resId)
+            {
+                MessageBox.Show("Nie można usunąć rezerwacji — istnieją powiązane płatności lub paczki.");
+                return;
+            }
 
-            if (confirm != DialogResult.Yes) return;
+        if (MessageBox.Show("Czy na pewno usunąć rezerwację?", "Potwierdzenie",
+            MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes)
+            return;
 
-            var res = db.Reservations.First(r => r.ReservationId == _selectedReservationId.Value);
-            db.Reservations.Remove(res);
-            db.SaveChanges();
+        // znalezienie rezerwacji
+        List<Reservation> reservations = db.Reservations.ToList();
+        Reservation res = null;
+        for (int i = 0; i < reservations.Count; i++)
+            if (reservations[i].ReservationId == resId) { res = reservations[i]; break; }
 
-            MessageBox.Show("Usunięto rezerwację ✅");
-            btnClearReservationForm_Click(sender, e);
-            LoadReservations("");
-        }
-        catch (Exception ex)
-        {
-            MessageBox.Show("Błąd: " + (ex.InnerException?.Message ?? ex.Message));
-        }
+        if (res == null) return;
+
+        db.Reservations.Remove(res);
+        db.SaveChanges();
+
+        MessageBox.Show("Usunięto rezerwację ✅");
+        btnClearReservationForm_Click(sender, e);
+        LoadReservations("");
     }
-
-
 
     // Czyści formularz rezerwacji oraz resetuje zaznaczenie w tabeli
     private void btnClearReservationForm_Click(object sender, EventArgs e)
@@ -1578,9 +1572,6 @@ public partial class MainForm : Form
 
         dgvReservations.ClearSelection();
     }
-
-
-
 
     /* =========================================================
    SEKCJA: RAPORT CSV
@@ -1599,106 +1590,113 @@ public partial class MainForm : Form
    kompatybilnego z arkuszami kalkulacyjnymi (np. Excel).
    ========================================================= */
 
-
     // Obsługuje eksport rezerwacji z wybranego miesiąca do pliku CSV
     private void btnExportCsv_Click(object sender, EventArgs e)
     {
         try
         {
-            var localMonth = new DateTime(dtpReportMonth.Value.Year, dtpReportMonth.Value.Month, 1);
+            // Pobranie roku i miesiąca z kontrolki
+            int year = dtpReportMonth.Value.Year;
+            int month = dtpReportMonth.Value.Month;
 
-            var startUtc = DateTime.SpecifyKind(localMonth, DateTimeKind.Local).ToUniversalTime();
-            var endUtc = DateTime.SpecifyKind(localMonth.AddMonths(1), DateTimeKind.Local).ToUniversalTime();
+            DateTime startDate = new DateTime(year, month, 1);
+            DateTime endDate = startDate.AddMonths(1);
 
-            using var db = new AppDbContext();
+            AppDbContext db = new AppDbContext();
 
-            // Pobieramy dane JOINem (bez nawigacji EF)
-            var data = (
-                from r in db.Reservations.AsNoTracking()
-                join c in db.Clients.AsNoTracking() on r.ClientId equals c.ClientId
-                join ro in db.Routes.AsNoTracking() on r.RouteId equals ro.RouteId
-                where r.CreatedAt >= startUtc && r.CreatedAt < endUtc
-                orderby r.CreatedAt
-                select new
-                {
-                    r.ReservationId,
-                    r.CreatedAt,
-                    r.ServiceType,
-                    r.Status,
+            // Lista wynikowa
+            List<string> lines = new List<string>();
 
-                    r.ClientId,
-                    ClientName = c.FirstName + " " + c.LastName,
-                    ClientEmail = c.Email,
+            // Nagłówek CSV
+            lines.Add("ReservationId;CreatedAt;ServiceType;Status;ClientId;ClientName;ClientEmail;RouteId;StartCity;EndCity;DepartureTime;PricePerson");
 
-                    r.RouteId,
-                    ro.StartCity,
-                    ro.EndCity,
-                    ro.DepartureTime,
-                    ro.PricePerson
-                }
-            ).ToList();
+            // Pobranie wszystkich rezerwacji
+            List<Reservation> reservations = db.Reservations.ToList();
+            List<Client> clients = db.Clients.ToList();
+            List<Route> routes = db.Routes.ToList();
 
-            using var sfd = new SaveFileDialog
+            // Przetwarzanie danych
+            foreach (Reservation r in reservations)
             {
-                FileName = $"raport_rezerwacje_{localMonth:yyyy_MM}.csv",
-                Filter = "CSV (*.csv)|*.csv",
-                Title = "Zapisz raport CSV"
-            };
+                if (r.CreatedAt >= startDate && r.CreatedAt < endDate)
+                {
+                    Client client = null;
+                    Route route = null;
+
+                    // Szukanie klienta
+                    foreach (Client c in clients)
+                    {
+                        if (c.ClientId == r.ClientId)
+                        {
+                            client = c;
+                            break;
+                        }
+                    }
+
+                    // Szukanie trasy
+                    foreach (Route ro in routes)
+                    {
+                        if (ro.RouteId == r.RouteId)
+                        {
+                            route = ro;
+                            break;
+                        }
+                    }
+
+                    if (client != null && route != null)
+                    {
+                        string line =
+                            Csv(r.ReservationId) + ";" +
+                            Csv(r.CreatedAt.ToString("yyyy-MM-dd HH:mm")) + ";" +
+                            Csv(r.ServiceType) + ";" +
+                            Csv(r.Status) + ";" +
+                            Csv(r.ClientId) + ";" +
+                            Csv(client.FirstName + " " + client.LastName) + ";" +
+                            Csv(client.Email) + ";" +
+                            Csv(r.RouteId) + ";" +
+                            Csv(route.StartCity) + ";" +
+                            Csv(route.EndCity) + ";" +
+                            Csv(route.DepartureTime.ToString("yyyy-MM-dd HH:mm")) + ";" +
+                            Csv(route.PricePerson.ToString("0.00"));
+
+                        lines.Add(line);
+                    }
+                }
+            }
+
+            SaveFileDialog sfd = new SaveFileDialog();
+            sfd.FileName = "raport_rezerwacje_" + year + "_" + month + ".csv";
+            sfd.Filter = "CSV (*.csv)|*.csv";
 
             if (sfd.ShowDialog() != DialogResult.OK)
                 return;
 
-            var sb = new StringBuilder();
+            File.WriteAllLines(sfd.FileName, lines, Encoding.UTF8);
 
-            sb.AppendLine("ReservationId;CreatedAt;ServiceType;Status;ClientId;ClientName;ClientEmail;RouteId;StartCity;EndCity;DepartureTime;PricePerson");
-
-            foreach (var x in data)
-            {
-                var createdLocal = x.CreatedAt.Kind == DateTimeKind.Utc ? x.CreatedAt.ToLocalTime() : x.CreatedAt;
-
-                var depLocal = x.DepartureTime;
-                if (depLocal.Kind == DateTimeKind.Utc)
-                    depLocal = depLocal.ToLocalTime();
-
-                sb.AppendLine(string.Join(";",
-                    Csv(x.ReservationId),
-                    Csv(createdLocal.ToString("yyyy-MM-dd HH:mm")),
-                    Csv(x.ServiceType),
-                    Csv(x.Status),
-                    Csv(x.ClientId),
-                    Csv(x.ClientName),
-                    Csv(x.ClientEmail),
-                    Csv(x.RouteId),
-                    Csv(x.StartCity),
-                    Csv(x.EndCity),
-                    Csv(depLocal.ToString("yyyy-MM-dd HH:mm")),
-                    Csv(x.PricePerson.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture))
-                ));
-            }
-
-            File.WriteAllText(sfd.FileName, sb.ToString(), new UTF8Encoding(true));
-
-            MessageBox.Show($"Zapisano CSV ✅\nRekordów: {data.Count}");
+            MessageBox.Show("Zapisano CSV\nRekordów: " + (lines.Count - 1));
         }
         catch (Exception ex)
         {
-            MessageBox.Show("Błąd: " + (ex.InnerException?.Message ?? ex.Message));
+            MessageBox.Show("Błąd: " + ex.Message);
         }
     }
 
-
-
-    // Funkcja pomocnicza formatująca dane do bezpiecznego zapisu CSV
-    // (obsługa separatorów, znaków nowej linii i cudzysłowów)
-    private static string Csv(object? value)
+    // Funkcja pomocnicza do bezpiecznego zapisu CSV
+    private static string Csv(object value)
     {
-        var s = value?.ToString() ?? "";
-        s = s.Replace("\"", "\"\"");
-        if (s.Contains(';') || s.Contains('\n') || s.Contains('\r') || s.Contains('"'))
-            return $"\"{s}\"";
-        return s;
-    }
+        if (value == null)
+            return "";
 
+        string text = value.ToString();
+
+        if (text.Contains(";") || text.Contains("\""))
+        {
+            text = text.Replace("\"", "\"\"");
+            text = "\"" + text + "\"";
+        }
+
+        return text;
+    }
 
 
 
@@ -1716,8 +1714,6 @@ public partial class MainForm : Form
    z Entity Framework Core, a wynik prezentowany jest w formie
    czytelnego komunikatu dla użytkownika.
    ========================================================= */
-
-
 
     // Testuje połączenie z bazą danych i wyświetla status oraz szczegóły błędu
     private void btnTestDb_Click(object sender, EventArgs e)
