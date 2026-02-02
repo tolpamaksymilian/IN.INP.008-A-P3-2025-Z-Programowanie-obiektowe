@@ -404,23 +404,39 @@ public partial class MainForm : Form
     {
         try
         {
-            if (dgvClients.CurrentRow == null) return;
+            if (dgvClients.CurrentRow == null)
+                return;
 
-            _selectedClientId = Convert.ToInt64(dgvClients.CurrentRow.Cells["ClientId"].Value);
+            object idObj = dgvClients.CurrentRow.Cells["ClientId"].Value;
+            if (idObj == null)
+                return;
 
-            txtFirstName.Text = dgvClients.CurrentRow.Cells["FirstName"].Value?.ToString() ?? "";
-            txtLastName.Text = dgvClients.CurrentRow.Cells["LastName"].Value?.ToString() ?? "";
-            txtEmail.Text = dgvClients.CurrentRow.Cells["Email"].Value?.ToString() ?? "";
-            txtPhone.Text = dgvClients.CurrentRow.Cells["Phone"].Value?.ToString() ?? "";
-            txtAddress.Text = dgvClients.CurrentRow.Cells["Address"].Value?.ToString() ?? "";
-            txtCity.Text = dgvClients.CurrentRow.Cells["City"].Value?.ToString() ?? "";
-            txtPostalCode.Text = dgvClients.CurrentRow.Cells["PostalCode"].Value?.ToString() ?? "";
+            _selectedClientId = Convert.ToInt64(idObj);
+
+            txtFirstName.Text = GetCellValue("FirstName");
+            txtLastName.Text = GetCellValue("LastName");
+            txtEmail.Text = GetCellValue("Email");
+            txtPhone.Text = GetCellValue("Phone");
+            txtAddress.Text = GetCellValue("Address");
+            txtCity.Text = GetCellValue("City");
+            txtPostalCode.Text = GetCellValue("PostalCode");
         }
         catch (Exception ex)
         {
             MessageBox.Show("Błąd: " + ex.Message);
         }
     }
+
+    private string GetCellValue(string columnName)
+    {
+        object value = dgvClients.CurrentRow.Cells[columnName].Value;
+        if (value == null)
+            return "";
+
+        return value.ToString();
+    }
+
+
 
 
 
